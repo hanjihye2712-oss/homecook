@@ -1,0 +1,116 @@
+/* ===== 로그인 & 회원가입 폼 ===== */
+form.auth-form {
+ max-width: 400px;
+ margin: 2rem auto;
+ padding: 2rem;
+ background-color: rgba(255, 255, 255, 0.95);
+ border-radius: 8px;
+ box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.auth-form input {
+ width: 100%;
+ padding: 0.6rem;
+ margin: 0.5rem 0;
+ border: 1px solid #ccc;
+ border-radius: 4px;
+}
+
+.auth-form button {
+ width: 100%;
+ background-color: #4b4c60;
+ color: white;
+ padding: 0.6rem;
+ border: none;
+ border-radius: 4px;
+ font-size: 1rem;
+ cursor: pointer;
+ margin-top: 1rem;
+}
+
+.auth-form button:hover {
+ background-color: #3a3b4c;
+} 
+
+/* ===== 안내 링크 ===== */
+.auth-form a {
+ display: block;
+ margin-top: 1rem;
+ color: #4b4c60;
+ text-align: center;
+ font-size: 14px;
+}
+
+/* ===== 에러/경고 메시지 ===== */
+.auth-form ul {
+ list-style: none;
+ padding: 0;
+ margin: 1rem 0;
+}
+
+.auth-form li {
+ background-color: #ffffff;
+ padding: 0.5rem 1rem;
+ margin-bottom: 0.5rem;
+ border-radius: 4px;
+ color: #cc0000;
+ font-size: 14px;
+}
+
+/*로그아웃 버튼 수정*/
+.site-nav li {
+ display: flex;
+ align-items: center;
+}
+
+.site-nav ul {
+ list-style: none;
+ display: flex;
+ gap: 1rem;
+ margin: 0;
+ padding: 0;
+}
+ 
+/*로그인 로그아웃 회원가입*/
+.navbar {
+ background-color: #3c3b52;
+ padding: 1rem 2rem;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+}
+
+.nav-links {
+ list-style: none;
+ display: flex;
+ gap: 1rem;
+ margin: 0;
+ padding: 0;
+}
+
+.nav-links li a {
+ color: white;
+ text-decoration: none;
+ font-weight: bold;
+}
+
+.nav-button {
+ background-color: #464559;
+ color: white;
+ padding: 8px 14px;
+ border-radius: 5px;
+ font-weight: bold;
+ transition: background-color 0.3s ease;
+ text-decoration: none;
+ border: none;
+ outline: none;
+ box-shadow: none;
+}
+
+.nav-button:hover {
+ background-color: #5a5970;
+}
+
+.site-nav form {
+ margin: 0;
+}

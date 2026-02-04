@@ -1,0 +1,117 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url("../img/background.png") no-repeat top left;
+    background-size: cover;
+}
+
+
+
+header {
+    background-color: #4a4e69;
+    color: white;
+    padding: 20px;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.site-nav li {
+    display: inline;
+    background: none;
+    box-shadow: none;
+}
+
+main {
+    padding: 20px;
+    text-align: center;
+}
+
+h2 {
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* 질문 리스트 중앙 정렬 */
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 700px;
+}
+
+li {
+    background-color: white;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    padding: 15px 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease;
+}
+
+li:hover {
+    background-color: #f0f4f8;
+}
+
+a {
+    text-decoration: none;
+    font-size: 18px;
+    color: #1d3557;
+}  
+
+footer {
+    margin-top: 50px;
+    padding: 20px;
+    background-color: #f1f1f1;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+ 
+footer a {
+    color: #1e1c2b;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+/*우선순위를 위해서*/
+.site-header {
+    width: 100%;
+    position: relative;
+    text-align: center;
+} 
+
+.site-title {
+    margin: 0;
+    font-size: 24px;
+}
+
+.site-nav {
+    position: absolute;
+    left: 100px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.site-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.site-nav li:hover {
+    background: none;
+}
+
+.site-nav li:hover a {
+    color: #b8bee6;
+}
+
+.site-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+}

@@ -1,0 +1,16 @@
+{% extends "base.html" %} 
+{% load static %} 
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+{% endblock %}
+
+{% block content %}
+<h2>회원가입</h2>
+<form method="post" class="auth-form">
+{% csrf_token %} 
+{{ form.as_p }}
+<button type="submit">가입</button>
+</form>
+<a href="{% url 'login' %}">이미 계정이 있으신가요?</a>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Homecook - 기록장 작성{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📔 기록장 작성</h4>
+                </div>
+                <div class="card-body">
+                    <!-- 안내 문구 -->
+                    <div class="alert alert-info">
+                        <strong>✏️ 작성 안내</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>최대 글자 수: <strong>200자</strong></li>
+                            <li>공개 설정: <strong>공개</strong> 또는 <strong>비공개</strong> 선택</li>
+                        </ul>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- 제목 입력 -->
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                {{ form.title.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger mt-1">
+                                    {{ form.title.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 내용 입력 -->
+                        <div class="mb-3">
+                            <label for="{{ form.content.id_for_label }}" class="form-label">
+                                {{ form.content.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                                <div class="text-danger mt-1">
+                                    {{ form.content.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <span id="journal-char-count">0</span> / 200자
+                            </div>
+                        </div>
+
+                        <!-- 공개 설정 -->
+                        <div class="mb-4">
+                            <label for="{{ form.visibility.id_for_label }}" class="form-label">
+                                {{ form.visibility.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.visibility }}
+                            {% if form.visibility.errors %}
+                                <div class="text-danger mt-1">
+                                    {{ form.visibility.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                공개로 설정하면 모든 사용자가 볼 수 있습니다.
+                            </div>
+                        </div>
+
+                        <!-- 버튼 -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'homecook:my_challenge' %}" class="btn btn-secondary">취소</a>
+                            <button type="submit" class="btn btn-primary">저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 글자 수 카운터
+    const journalContent = document.getElementById('journal-content');
+    const charCount = document.getElementById('journal-char-count');
+    
+    journalContent.addEventListener('input', function() {
+        const length = this.value.length;
+        charCount.textContent = length;
+        
+        if (length > 200) {
+            charCount.classList.add('text-danger');
+            charCount.classList.remove('text-success');
+        } else {
+            charCount.classList.add('text-success');
+            charCount.classList.remove('text-danger');
+        }
+    });
+    
+    // 초기 글자 수 표시
+    charCount.textContent = journalContent.value.length;
+</script>
+{% endblock %}

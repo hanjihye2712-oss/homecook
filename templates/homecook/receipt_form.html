@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Homecook - 영수증 업로드{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">🧾 영수증 OCR</h4>
+                </div>
+                <div class="card-body">
+                    <!-- 안내 문구 -->
+                    <div class="alert alert-success">
+                        <strong>✨ OCR 자동 텍스트 추출</strong>
+                        <p class="mb-0 mt-2">영수증을 업로드하면 자동으로 텍스트가 추출됩니다.</p>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- 영수증 이미지 업로드 -->
+                        <div class="mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">
+                                {{ form.image.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                                <div class="text-danger mt-1">
+                                    {{ form.image.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">영수증 사진을 선택해주세요</div>
+                        </div>
+
+                        <!-- 이미지 미리보기 -->
+                        <div class="mb-3">
+                            <img id="receipt-preview" src="#" alt="미리보기" 
+                                 style="max-width: 100%; max-height: 400px; display: none;"
+                                 class="img-thumbnail">
+                        </div>
+
+                        <!-- 버튼 -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'homecook:my_challenge' %}" class="btn btn-secondary">취소</a>
+                            <button type="submit" class="btn btn-info">업로드 & OCR 처리</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 영수증 미리보기
+    document.getElementById('id_image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('receipt-preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+{% endblock %}
