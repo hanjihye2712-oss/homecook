@@ -108,11 +108,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",   # ✅ 공통 static 폴더
+]
 
+# 배포용(지금 당장은 없어도 됨, 하지만 나중에 꼭 필요)
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# 미디어 파일 설정
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 # 미디어 파일 설정
 MEDIA_URL = '/media/'
@@ -120,4 +122,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # 로그인 URL
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/'
+
+LOGIN_REDIRECT_URL = "homecook:landing"   
+LOGOUT_REDIRECT_URL = "homecook:landing"  

@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path("signup/", views.signup, name="signup"),
-    #http://127.0.0.1:8000/acoounts/signup/
+    path("logout/", views.custom_logout, name="custom_logout"), 
 ]
