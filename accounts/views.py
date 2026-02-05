@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -13,4 +14,6 @@ def signup(request):
         form = UserCreationForm()
     return render(request, "accounts/signup.html", {"form": form})
 
-# Create your views here.
+def custom_logout(request):
+    logout(request)
+    return redirect('homecook:landing')

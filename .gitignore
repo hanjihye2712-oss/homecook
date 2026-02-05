@@ -9,6 +9,10 @@ wheels/
 # Virtual environments
 .venv
 
-# 
+db.sqlite3
+
+
+
 db.sqlite3
 db.sqlite3.local
+

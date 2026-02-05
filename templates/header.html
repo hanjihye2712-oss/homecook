@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <header>
   <div class="site-header">
     <h1 class="site-title">설문조사 시스템</h1>
@@ -9,16 +9,13 @@
       
         {% if user.is_authenticated %}
          <li>
-            <form method="post" action="{% url 'logout' %}">
-              {% csrf_token %}
-              <button type="submit" class="nav-button">로그아웃</button>
-            </form>
+            <a href="{% url 'custom_logout' %}" class="nav-button">로그아웃</a>
           </li>
-        {% else % }
+        {% else %}
         <li><a href="{% url 'login' %}" class="nav-button">로그인</a></li>
         <li><a href="{% url 'signup' %}" class="nav-button">회원가입</a></li>
         {% endif %}
       </ul>
     </nav>
   </div>
-</header>
+</header> -->

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Homecook - 나만의 요리일상{% endblock %}
+{% block title %}Eco Challenge{% endblock %}
 
 {% block content %}
 <div class="landing-container">
@@ -9,7 +9,7 @@
         <div class="container">
             <!-- 로고/제목 -->
             <h1 class="display-1 fw-bold mb-4">
-                🍳 홈쿡
+                🍳 오늘의 홈 쿡 🍴
             </h1>
             
             <!-- 서브 타이틀 -->
@@ -23,8 +23,8 @@
                     🎯 나만의 챌린지로 가기
                 </a>
             {% else %}
-                <a href="/admin/login/" class="btn btn-light btn-lg px-5 py-3 fs-5 shadow">
-                    로그인하고 시작하기 →
+                <a href="{% url 'login' %}" class="btn btn-light btn-lg px-5 py-3 fs-5 shadow">
+                    로그인 / 회원가입 하고 시작하기 →
                 </a>
             {% endif %}
         </div>
@@ -79,7 +79,7 @@
                         내 챌린지에서 사진 올리기 →
                     </a>
                 {% else %}
-                    <a href="/admin/login/" class="btn btn-primary btn-lg">
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
                         로그인하고 참여하기 →
                     </a>
                 {% endif %}
