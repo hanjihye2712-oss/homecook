@@ -9,7 +9,7 @@ from .models import Transaction
 from .forms import TransactionForm
 
 
-# ============= CONSTANTS =============
+# ============= CONSTANTS ============= #
 LOGIN_URL = '/accounts/login/'
 SUCCESS_URL = reverse_lazy('information:transaction_list')
 
@@ -261,3 +261,4 @@ class TransactionDeleteView(TransactionBaseMixin, UserOwnerMixin, generic.Delete
         """삭제 실행 및 성공 메시지"""
         messages.success(request, MSG_DELETE_SUCCESS)
         return super().delete(request, *args, **kwargs)
+
