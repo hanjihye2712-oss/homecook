@@ -3,4 +3,8 @@ django==6.0.1
 packaging==26.0
 pillow==12.1.0
 pytesseract==0.3.13
+
 sqlparse==0.5.5
+
+sqlparse==0.5.5
+

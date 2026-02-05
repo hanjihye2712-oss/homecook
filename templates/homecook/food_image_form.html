@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Homecook - 음식 이미지 업로드{% endblock %}
+{% block title %}
+    {% if food_image %}
+        음식 이미지 수정
+    {% else %}
+        음식 이미지 업로드
+    {% endif %}
+    - Homecook
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -8,7 +15,13 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">📸 음식 이미지 업로드</h4>
+                    <h4 class="mb-0">
+                        {% if food_image %}
+                            ✏️ 음식 이미지 수정
+                        {% else %}
+                            📸 음식 이미지 업로드
+                        {% endif %}
+                    </h4>
                 </div>
                 <div class="card-body">
                     <!-- 안내 문구 -->
@@ -35,8 +48,24 @@
                                     {{ form.image.errors }}
                                 </div>
                             {% endif %}
-                            <div class="form-text">음식 사진을 선택해주세요</div>
+                            {% if food_image %}
+                                <div class="form-text">새 이미지를 선택하면 기존 이미지가 교체됩니다.</div>
+                            {% else %}
+                                <div class="form-text">음식 사진을 선택해주세요</div>
+                            {% endif %}
                         </div>
+
+                        <!-- 기존 이미지 미리보기 (Update 모드) -->
+                        {% if food_image %}
+                        <div class="mb-3">
+                            <label class="form-label">현재 이미지</label>
+                            <div>
+                                <img src="{{ food_image.image.url }}" 
+                                     class="img-thumbnail" 
+                                     style="max-width: 300px; max-height: 300px;">
+                            </div>
+                        </div>
+                        {% endif %}
 
                         <!-- 이미지 미리보기 -->
                         <div class="mb-3">
@@ -61,8 +90,11 @@
 
                         <!-- 버튼 -->
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'homecook:my_challenge' %}" class="btn btn-secondary">취소</a>
-                            <button type="submit" class="btn btn-primary">업로드</button>
+                            <a href="{% if food_image %}{% url 'homecook:food_image_detail' food_image.pk %}{% else %}{% url 'homecook:my_challenge' %}{% endif %}" 
+                               class="btn btn-secondary">취소</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if food_image %}수정 완료{% else %}업로드{% endif %}
+                            </button>
                         </div>
                     </form>
                 </div>

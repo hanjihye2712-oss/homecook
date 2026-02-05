@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Homecook - 기록장 작성{% endblock %}
+{% block title %}
+    {% if journal %}
+        기록장 수정
+    {% else %}
+        기록장 작성
+    {% endif %}
+    - Homecook
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -8,7 +15,13 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">📔 기록장 작성</h4>
+                    <h4 class="mb-0">
+                        {% if journal %}
+                            ✏️ 기록장 수정
+                        {% else %}
+                            📔 기록장 작성
+                        {% endif %}
+                    </h4>
                 </div>
                 <div class="card-body">
                     <!-- 안내 문구 -->
@@ -70,8 +83,11 @@
 
                         <!-- 버튼 -->
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'homecook:my_challenge' %}" class="btn btn-secondary">취소</a>
-                            <button type="submit" class="btn btn-primary">저장</button>
+                            <a href="{% if journal %}{% url 'homecook:journal_detail' journal.pk %}{% else %}{% url 'homecook:my_challenge' %}{% endif %}" 
+                               class="btn btn-secondary">취소</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if journal %}수정 완료{% else %}저장{% endif %}
+                            </button>
                         </div>
                     </form>
                 </div>

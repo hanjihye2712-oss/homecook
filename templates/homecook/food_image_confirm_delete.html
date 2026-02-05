@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}음식 이미지 삭제 확인 - Homecook{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">🗑️ 삭제 확인</h4>
+                </div>
+                <div class="card-body">
+                    <!-- 경고 메시지 -->
+                    <div class="alert alert-danger">
+                        <strong>⚠️ 경고</strong>
+                        <p class="mb-0 mt-2">이 작업은 되돌릴 수 없습니다!</p>
+                    </div>
+
+                    <!-- 삭제할 항목 정보 -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">삭제할 이미지:</h5>
+                        <div class="text-center mb-3">
+                            <img src="{{ food_image.image.url }}" 
+                                 class="img-thumbnail" 
+                                 style="max-width: 300px; max-height: 300px;"
+                                 alt="{{ food_image.title }}">
+                        </div>
+                        <p><strong>제목:</strong> {{ food_image.title|default:"제목 없음" }}</p>
+                        <p><strong>업로드 날짜:</strong> {{ food_image.created_at|date:"Y.m.d H:i" }}</p>
+                    </div>
+
+                    <p class="text-danger fw-bold">정말로 이 음식 이미지를 삭제하시겠습니까?</p>
+
+                    <!-- 폼 -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'homecook:food_image_detail' food_image.pk %}" 
+                               class="btn btn-secondary">
+                                취소
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                삭제하기
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
