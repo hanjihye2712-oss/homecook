@@ -3,7 +3,33 @@ from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator, MaxLengthValidator
 from django.core.exceptions import ValidationError
 
+
+class ChallengeSet(models.Model):
+    """챌린지 세트 - 음식이미지, 영수증, 레시피, 기록장을 하나로 묶음"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='challenge_sets')
+    title = models.CharField(max_length=100, verbose_name='챌린지 제목', default='나의 챌린지')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = '챌린지 세트'
+        verbose_name_plural = '챌린지 세트 목록'
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.title} ({self.created_at.date()})"
+
+
+
 class FoodImage(models.Model):
+   # ⭐ 새로 추가된 필드!
+    challenge_set = models.OneToOneField(
+        ChallengeSet, 
+        on_delete=models.CASCADE, 
+        related_name='food_image',
+        null=True,
+        blank=True
+    )
     """테이블1: 음식 이미지 (5MB, 1000x1000px)"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='food_images')
     image = models.ImageField(
@@ -29,6 +55,14 @@ class FoodImage(models.Model):
 
 
 class Receipt(models.Model):
+    # ⭐ 새로 추가된 필드!
+    challenge_set = models.OneToOneField(
+        ChallengeSet, 
+        on_delete=models.CASCADE, 
+        related_name='receipt',
+        null=True,
+        blank=True
+    )
     """테이블2: 영수증 OCR"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receipts')
     image = models.ImageField(upload_to='receipts/%Y/%m/%d/', verbose_name='영수증 이미지')
@@ -47,6 +81,15 @@ class Receipt(models.Model):
 
 
 class Recipe(models.Model):
+    # ⭐ 새로 추가된 필드!
+    challenge_set = models.OneToOneField(
+        ChallengeSet, 
+        on_delete=models.CASCADE, 
+        related_name='recipe',
+        null=True,
+        blank=True
+    )
+
     """테이블3: 나의 레시피 (공개형, 300자 제한)"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes')
     title = models.CharField(max_length=100, verbose_name='레시피 제목')
@@ -59,6 +102,8 @@ class Recipe(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     views = models.IntegerField(default=0, verbose_name='조회수')
     
+    likes = models.ManyToManyField(User, related_name='liked_recipes', blank=True)
+
     class Meta:
         ordering = ['-created_at']
         verbose_name = '레시피'
@@ -71,6 +116,12 @@ class Recipe(models.Model):
         """미리보기용 (50자)"""
         return self.content[:50] + '...' if len(self.content) > 50 else self.content
 
+    # ⭐ 2. 좋아요 개수 메서드 추가 (새로 추가!)
+    def total_likes(self):
+        """총 좋아요 수"""
+        return self.likes.count()
+
+
 
 class Journal(models.Model):
     """테이블4: 기록장 (공개/비공개, 200자 제한)"""
@@ -80,6 +131,14 @@ class Journal(models.Model):
         (PUBLIC, '공개'),
         (PRIVATE, '비공개'),
     ]
+    # ⭐ 새로 추가된 필드!
+    challenge_set = models.OneToOneField(
+        ChallengeSet, 
+        on_delete=models.CASCADE, 
+        related_name='journal',
+        null=True,
+        blank=True
+    )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='journals')
     title = models.CharField(max_length=100, verbose_name='제목')

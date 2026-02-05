@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}새 챌린지 세트 만들기 - Homecook{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            
+            <!-- 뒤로가기 -->
+            <div class="mb-3">
+                <a href="{% url 'homecook:my_challenge' %}" class="btn btn-outline-secondary btn-sm">
+                    ← My Challenge로 돌아가기
+                </a>
+            </div>
+
+            <!-- 헤더 -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">📝 새 챌린지 세트 만들기</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-0">음식 이미지, 영수증, 레시피, 기록장을 한 번에 등록하세요!</p>
+                    <small class="text-muted">* 필수 항목만 입력하고 나머지는 나중에 추가할 수 있습니다.</small>
+                </div>
+            </div>
+
+            <!-- 메인 폼 -->
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- 1. 챌린지 제목 -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">1️⃣ 챌린지 제목 <span class="badge bg-danger">필수</span></h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="id_set_title" class="form-label">제목</label>
+                            {{ form.set_title }}
+                            {% if form.set_title.errors %}
+                                <div class="text-danger">{{ form.set_title.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">예: "2024년 1월 1주차 요리 챌린지"</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 음식 이미지 -->
+                <div class="card shadow mb-4">
+                    <div class="card-header" style="background-color: #ff6b6b; color: white;">
+                        <h5 class="mb-0">2️⃣ 📸 음식 이미지 <span class="badge bg-secondary">선택</span></h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="id_food_image" class="form-label">이미지 업로드</label>
+                            {{ form.food_image }}
+                            <div class="form-text">최대 5MB, 권장 해상도 1000x1000px</div>
+                        </div>
+                        
+                        <!-- 이미지 미리보기 -->
+                        <div class="mb-3">
+                            <img id="food-image-preview" src="#" alt="미리보기" 
+                                 style="max-width: 100%; max-height: 300px; display: none;"
+                                 class="img-thumbnail">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_food_image_title" class="form-label">이미지 제목 (선택)</label>
+                            {{ form.food_image_title }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 영수증 -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">3️⃣ 🧾 영수증 OCR <span class="badge bg-secondary">선택</span></h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="id_receipt_image" class="form-label">영수증 이미지</label>
+                            {{ form.receipt_image }}
+                            <div class="form-text">업로드 시 자동으로 텍스트를 추출합니다</div>
+                        </div>
+
+                        <!-- 영수증 미리보기 -->
+                        <div class="mb-3">
+                            <img id="receipt-image-preview" src="#" alt="미리보기" 
+                                 style="max-width: 100%; max-height: 300px; display: none;"
+                                 class="img-thumbnail">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. 레시피 -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">4️⃣ 👨‍🍳 레시피 <span class="badge bg-secondary">선택</span></h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="id_recipe_title" class="form-label">레시피 제목</label>
+                            {{ form.recipe_title }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_recipe_content" class="form-label">레시피 내용</label>
+                            {{ form.recipe_content }}
+                            <div class="form-text">
+                                <span id="recipe-char-count">0</span> / 300자
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. 기록장 -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0">5️⃣ 📔 기록장 <span class="badge bg-secondary">선택</span></h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="id_journal_title" class="form-label">기록 제목</label>
+                            {{ form.journal_title }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_journal_content" class="form-label">기록 내용</label>
+                            {{ form.journal_content }}
+                            <div class="form-text">
+                                <span id="journal-char-count">0</span> / 200자
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_journal_visibility" class="form-label">공개 설정</label>
+                            {{ form.journal_visibility }}
+                            <div class="form-text">공개로 설정하면 다른 사용자도 볼 수 있습니다</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="d-flex justify-content-between mb-5">
+                    <a href="{% url 'homecook:my_challenge' %}" class="btn btn-secondary btn-lg">
+                        취소
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        ✨ 챌린지 세트 생성하기
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 음식 이미지 미리보기
+document.getElementById('id_food_image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('food-image-preview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// 영수증 이미지 미리보기
+document.getElementById('id_receipt_image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('receipt-image-preview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// 레시피 글자 수 카운터
+const recipeContent = document.getElementById('recipe-content');
+const recipeCharCount = document.getElementById('recipe-char-count');
+
+recipeContent.addEventListener('input', function() {
+    const length = this.value.length;
+    recipeCharCount.textContent = length;
+    
+    if (length > 300) {
+        recipeCharCount.classList.add('text-danger');
+        recipeCharCount.classList.remove('text-success');
+    } else {
+        recipeCharCount.classList.add('text-success');
+        recipeCharCount.classList.remove('text-danger');
+    }
+});
+
+// 기록장 글자 수 카운터
+const journalContent = document.getElementById('journal-content');
+const journalCharCount = document.getElementById('journal-char-count');
+
+journalContent.addEventListener('input', function() {
+    const length = this.value.length;
+    journalCharCount.textContent = length;
+    
+    if (length > 200) {
+        journalCharCount.classList.add('text-danger');
+        journalCharCount.classList.remove('text-success');
+    } else {
+        journalCharCount.classList.add('text-success');
+        journalCharCount.classList.remove('text-danger');
+    }
+});
+
+// 초기 글자 수 표시
+recipeCharCount.textContent = recipeContent.value.length;
+journalCharCount.textContent = journalContent.value.length;
+</script>
+{% endblock %}
