@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}새 챌린지 세트 - Homecook{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📝 새 챌린지 세트 만들기</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label">챌린지 제목</label>
+                            <input type="text" 
+                                   name="title" 
+                                   class="form-control" 
+                                   id="id_title" 
+                                   placeholder="예: 2024년 1월 1주차 챌린지"
+                                   required>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'homecook:my_challenge' %}" class="btn btn-secondary">
+                                취소
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                생성하고 항목 추가하기 →
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}{% extends 'base.html' %}
+
+{% block title %}새 챌린지 세트 - Homecook{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📝 새 챌린지 세트 만들기</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label">챌린지 제목</label>
+                            <input type="text" 
+                                   name="title" 
+                                   class="form-control" 
+                                   id="id_title" 
+                                   placeholder="예: 2024년 1월 1주차 챌린지"
+                                   required>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'homecook:my_challenge' %}" class="btn btn-secondary">
+                                취소
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                생성하고 항목 추가하기 →
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
