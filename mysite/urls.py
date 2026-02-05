@@ -8,6 +8,7 @@ urlpatterns = [
     path('', include('homecook.urls')),
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('information/', include('information.urls')), 
 ]
 
 # 개발 환경에서 미디어 파일 서빙
