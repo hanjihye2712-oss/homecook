@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}거래내역 삭제{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- 헤더 -->
+            <div class="mb-4 text-center">
+                <h2>🗑️ 거래내역 삭제</h2>
+            </div>
+
+            <!-- 삭제 확인 카드 -->
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">⚠️ 삭제 확인</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <p class="mb-0"><strong>정말 이 거래내역을 삭제하시겠습니까?</strong></p>
+                        <small>삭제된 데이터는 복구할 수 없습니다.</small>
+                    </div>
+
+                    <!-- 삭제할 거래내역 정보 -->
+                    <div class="border rounded p-3 bg-light mb-3">
+                        <h6 class="mb-3">삭제 대상:</h6>
+                        
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">거래 유형:</div>
+                            <div class="col-7">
+                                <span class="badge {% if transaction.transaction_type == 'deposit' %}bg-success{% elif transaction.transaction_type == 'withdrawal' %}bg-danger{% else %}bg-info{% endif %}">
+                                    {{ transaction.get_transaction_type_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">금액:</div>
+                            <div class="col-7">
+                                <strong class="{% if transaction.is_income %}text-success{% else %}text-danger{% endif %}">
+                                    {{ transaction.get_amount_display }}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">카테고리:</div>
+                            <div class="col-7">
+                                <span class="badge bg-secondary">{{ transaction.get_category_display }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">내용:</div>
+                            <div class="col-7">{{ transaction.description }}</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-5 text-muted">거래 일시:</div>
+                            <div class="col-7">{{ transaction.transaction_date|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+
+                    <!-- 삭제 폼 -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="{% url 'information:transaction_list' %}" class="btn btn-secondary btn-lg">취소</a>
+                            <button type="submit" class="btn btn-danger btn-lg">삭제하기</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 안내 메시지 -->
+            <div class="alert alert-info mt-4 text-center">
+                <small>
+                    <i class="bi bi-info-circle"></i> 
+                    취소하려면 '취소' 버튼을 클릭하세요.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-header {
+        font-weight: 600;
+    }
+    .border-danger {
+        border-width: 2px !important;
+    }
+</style>
+{% endblock %}

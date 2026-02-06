@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}거래내역 상세{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- 헤더 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>💰 거래내역 상세</h2>
+                <a href="{% url 'information:transaction_list' %}" class="btn btn-outline-secondary">목록으로</a>
+            </div>
+
+            <!-- 거래내역 카드 -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">{{ transaction.description }}</h5>
+                </div>
+                <div class="card-body">
+                    <!-- 거래 유형 -->
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">거래 유형</div>
+                        <div class="col-8">
+                            <span class="badge {% if transaction.transaction_type == 'deposit' %}bg-success{% elif transaction.transaction_type == 'withdrawal' %}bg-danger{% else %}bg-info{% endif %} fs-6">
+                                {{ transaction.get_transaction_type_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <!-- 금액 -->
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">금액</div>
+                        <div class="col-8">
+                            <h4 class="mb-0 {% if transaction.is_income %}text-success{% else %}text-danger{% endif %}">
+                                {{ transaction.get_amount_display }}
+                            </h4>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <!-- 카테고리 -->
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">카테고리</div>
+                        <div class="col-8">
+                            <span class="badge bg-secondary fs-6">{{ transaction.get_category_display }}</span>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <!-- 거래 일시 -->
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">거래 일시</div>
+                        <div class="col-8">{{ transaction.transaction_date|date:"Y년 m월 d일 H:i" }}</div>
+                    </div>
+                    <hr>
+
+                    <!-- 거래 후 잔액 -->
+                    {% if transaction.balance_after %}
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">거래 후 잔액</div>
+                        <div class="col-8">
+                            <strong class="text-primary">{{ transaction.get_balance_display }}</strong>
+                        </div>
+                    </div>
+                    <hr>
+                    {% endif %}
+
+                    <!-- 메모 -->
+                    {% if transaction.memo %}
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">메모</div>
+                        <div class="col-8">
+                            <div class="alert alert-light mb-0">{{ transaction.memo|linebreaks }}</div>
+                        </div>
+                    </div>
+                    <hr>
+                    {% endif %}
+
+                    <!-- 등록/수정 일시 -->
+                    <div class="row mb-2">
+                        <div class="col-4 text-muted">등록 일시</div>
+                        <div class="col-8 text-muted small">{{ transaction.created_at|date:"Y-m-d H:i:s" }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 text-muted">수정 일시</div>
+                        <div class="col-8 text-muted small">{{ transaction.updated_at|date:"Y-m-d H:i:s" }}</div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'information:transaction_update' transaction.pk %}" class="btn btn-primary">수정</a>
+                        <a href="{% url 'information:transaction_delete' transaction.pk %}" class="btn btn-danger">삭제</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    hr {
+        margin: 1rem 0;
+    }
+</style>
+{% endblock %}
