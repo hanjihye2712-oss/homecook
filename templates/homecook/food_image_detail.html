@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ food_image.title|default:"음식 이미지" }} - Homecook{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- 뒤로가기 -->
+            <div class="mb-3">
+                <a href="{% url 'homecook:my_challenge' %}" class="btn btn-outline-secondary btn-sm">
+                    ← My Challenge로 돌아가기
+                </a>
+            </div>
+
+            <!-- 카드 -->
+            <div class="card shadow-lg">
+                <!-- 이미지 -->
+                <img src="{{ food_image.image.url }}" 
+                     class="card-img-top" 
+                     alt="{{ food_image.title }}"
+                     style="max-height: 600px; object-fit: contain; background: #f8f9fa;">
+                
+                <div class="card-body">
+                    <!-- 제목 -->
+                    <h2 class="card-title mb-4">
+                        {% if food_image.title %}
+                            {{ food_image.title }}
+                        {% else %}
+                            <span class="text-muted">제목 없음</span>
+                        {% endif %}
+                    </h2>
+
+                    <!-- 정보 -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>📅 업로드 날짜:</strong> 
+                                {{ food_image.created_at|date:"Y년 m월 d일 H:i" }}
+                            </p>
+                            <p class="mb-2">
+                                <strong>👤 작성자:</strong> 
+                                {{ food_image.user.username }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>📐 이미지 크기:</strong> 
+                                <span class="badge bg-info">{{ food_image.image.width }} x {{ food_image.image.height }} px</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong>💾 파일 크기:</strong> 
+                                <span class="badge bg-secondary">{{ food_image.image.size|filesizeformat }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 수정/삭제 버튼 (본인만) -->
+                    {% if food_image.user == request.user %}
+                    <hr class="my-4">
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'homecook:food_image_update' food_image.pk %}" class="btn btn-warning">
+                            ✏️ 수정하기
+                        </a>
+                        <a href="{% url 'homecook:food_image_delete' food_image.pk %}" class="btn btn-danger">
+                            🗑️ 삭제하기
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
