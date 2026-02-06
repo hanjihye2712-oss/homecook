@@ -148,6 +148,24 @@ class TransactionFilterMixin:
         if trans_type := self.request.GET.get('type'):
             queryset = queryset.filter(transaction_type=trans_type)
 
+        # 날짜 필터 (시작일)
+        if start_date := self.request.GET.get('start_date'):
+            try:
+                start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+                queryset = queryset.filter(transaction_date__gte=start_datetime)
+            except ValueError:
+                pass  # 잘못된 날짜 형식은 무시
+
+        # 날짜 필터 (종료일)
+        if end_date := self.request.GET.get('end_date'):
+            try:
+                end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+                # 종료일의 23:59:59까지 포함
+                end_datetime = end_datetime.replace(hour=23, minute=59, second=59)
+                queryset = queryset.filter(transaction_date__lte=end_datetime)
+            except ValueError:
+                pass  # 잘못된 날짜 형식은 무시
+
         return queryset
 
     def _get_filter_context(self):
@@ -160,6 +178,8 @@ class TransactionFilterMixin:
             'selected_category': self.request.GET.get('category', ''),
             'selected_type': self.request.GET.get('type', ''),
             'search_query': self.request.GET.get('search', ''),
+            'start_date': self.request.GET.get('start_date', ''),
+            'end_date': self.request.GET.get('end_date', ''),
             'categories': Transaction.CATEGORY_CHOICES,
             'transaction_types': Transaction.TRANSACTION_TYPE_CHOICES,
         }

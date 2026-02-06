@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}대시보드 - 거래내역 분석{% endblock %}
 
@@ -47,7 +48,7 @@
             <div class="card text-white bg-primary h-100">
                 <div class="card-body">
                     <h6 class="card-title">총 수입</h6>
-                    <h3 class="mb-0">{{ total_income|floatformat:0|default:"0" }}원</h3>
+                    <h3 class="mb-0">{{ total_income|floatformat:0|intcomma|default:"0" }}원</h3>
                 </div>
             </div>
         </div>
@@ -55,7 +56,7 @@
             <div class="card text-white bg-danger h-100">
                 <div class="card-body">
                     <h6 class="card-title">총 지출</h6>
-                    <h3 class="mb-0">{{ total_expense|floatformat:0|default:"0" }}원</h3>
+                    <h3 class="mb-0">{{ total_expense|floatformat:0|intcomma|default:"0" }}원</h3>
                 </div>
             </div>
         </div>
@@ -64,7 +65,7 @@
                 <div class="card-body">
                     <h6 class="card-title">순 수지</h6>
                     <h3 class="mb-0">
-                        {% if net_balance >= 0 %}+{% endif %}{{ net_balance|floatformat:0|default:"0" }}원
+                        {% if net_balance >= 0 %}+{% endif %}{{ net_balance|floatformat:0|intcomma|default:"0" }}원
                     </h3>
                 </div>
             </div>
@@ -73,7 +74,7 @@
             <div class="card text-white bg-info h-100">
                 <div class="card-body">
                     <h6 class="card-title">평균 거래액</h6>
-                    <h3 class="mb-0">{{ avg_amount|floatformat:0|default:"0" }}원</h3>
+                    <h3 class="mb-0">{{ avg_amount|floatformat:0|intcomma|default:"0" }}원</h3>
                 </div>
             </div>
         </div>
@@ -113,7 +114,7 @@
                                             </div>
                                         </div>
                                         <span class="ms-2 text-nowrap" style="min-width: 100px;">
-                                            {{ month.income|floatformat:0 }}원
+                                            {{ month.income|floatformat:0|intcomma }}원
                                         </span>
                                     </div>
                                 </td>
@@ -126,12 +127,12 @@
                                             </div>
                                         </div>
                                         <span class="ms-2 text-nowrap" style="min-width: 100px;">
-                                            {{ month.expense|floatformat:0 }}원
+                                            {{ month.expense|floatformat:0|intcomma }}원
                                         </span>
                                     </div>
                                 </td>
                                 <td class="{% if month.balance >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
-                                    {% if month.balance >= 0 %}+{% endif %}{{ month.balance|floatformat:0 }}원
+                                    {% if month.balance >= 0 %}+{% endif %}{{ month.balance|floatformat:0|intcomma }}원
                                 </td>
                             </tr>
                             {% endfor %}
@@ -159,7 +160,7 @@
                 <div class="card-body">
                     {% if category_data %}
                         <div class="mb-3">
-                            <strong>총 지출: {{ total_category_expense|floatformat:0 }}원</strong>
+                            <strong>총 지출: {{ total_category_expense|floatformat:0|intcomma }}원</strong>
                         </div>
                         <div class="category-chart">
                             {% for cat in category_data %}
@@ -176,7 +177,7 @@
                                         </div>
                                     </div>
                                     <span class="ms-2 text-nowrap" style="min-width: 120px;">
-                                        {{ cat.amount|floatformat:0 }}원
+                                        {{ cat.amount|floatformat:0|intcomma }}원
                                     </span>
                                 </div>
                                 <div class="text-end">
@@ -227,7 +228,7 @@
                                                     </div>
                                                 </div>
                                                 <span class="ms-2 small text-nowrap" style="min-width: 80px;">
-                                                    {{ day.income|floatformat:0 }}원
+                                                    {{ day.income|floatformat:0|intcomma }}원
                                                 </span>
                                             </div>
                                             {% endif %}
@@ -240,7 +241,7 @@
                                                     </div>
                                                 </div>
                                                 <span class="ms-2 small text-nowrap" style="min-width: 80px;">
-                                                    {{ day.expense|floatformat:0 }}원
+                                                    {{ day.expense|floatformat:0|intcomma }}원
                                                 </span>
                                             </div>
                                             {% endif %}

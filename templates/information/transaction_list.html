@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}계좌 거래내역{% endblock %}
 
@@ -23,7 +24,7 @@
             <div class="card text-center border-success">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">이번 달 수입</h6>
-                    <h4 class="card-title text-success">{{ monthly_income|floatformat:0|default:"0" }}원</h4>
+                    <h4 class="card-title text-success">{{ monthly_income|floatformat:0|intcomma|default:"0" }}원</h4>
                 </div>
             </div>
         </div>
@@ -31,7 +32,7 @@
             <div class="card text-center border-danger">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">이번 달 지출</h6>
-                    <h4 class="card-title text-danger">{{ monthly_expense|floatformat:0|default:"0" }}원</h4>
+                    <h4 class="card-title text-danger">{{ monthly_expense|floatformat:0|intcomma|default:"0" }}원</h4>
                 </div>
             </div>
         </div>
@@ -40,7 +41,7 @@
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">잔액</h6>
                     <h4 class="card-title {% if monthly_balance >= 0 %}text-primary{% else %}text-warning{% endif %}">
-                        {{ monthly_balance|floatformat:0|default:"0" }}원
+                        {{ monthly_balance|floatformat:0|intcomma|default:"0" }}원
                     </h4>
                 </div>
             </div>

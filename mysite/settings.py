@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',  # 천 단위 구분자를 위한 humanize 앱 추가
     'accounts',
     'homecook',
     'information',
