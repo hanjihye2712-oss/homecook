@@ -6,18 +6,106 @@ from django.db.models import Sum, Q, Count, Avg
 from django.db.models.functions import TruncMonth, TruncDate
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
-from datetime import timedelta
+from datetime import timedelta, datetime
 from decimal import Decimal
 from collections import defaultdict
 from .models import Transaction
 from .forms import TransactionForm
-from .utils import (
-    calculate_percentage,
-    get_month_range,
-    calculate_transaction_stats,
-    validate_period_parameter,
-)
-from .mixins import TransactionFilterMixin
+
+# ============= UTILITY FUNCTIONS ============= #
+
+def calculate_percentage(value, total):
+    """백분율 계산 (0~100)
+
+    Args:
+        value: 계산할 값
+        total: 전체 값
+
+    Returns:
+        float: 백분율 (0~100), 오류 시 0
+    """
+    if not total or total == 0:
+        return 0
+
+    try:
+        percentage = (Decimal(str(value)) / Decimal(str(total))) * 100
+        return min(float(percentage), 100)
+    except (ValueError, TypeError, ZeroDivisionError):
+        return 0
+
+
+def get_month_range(months_back=1):
+    """월별 날짜 범위 반환
+
+    Args:
+        months_back: 몇 개월 전까지 조회할지 (기본값: 1)
+
+    Returns:
+        tuple: (start_date, end_date)
+    """
+    end_date = timezone.now()
+    start_date = end_date - timedelta(days=30 * months_back)
+    return start_date, end_date
+
+
+def get_current_month_start():
+    """이번 달 시작일 반환
+
+    Returns:
+        datetime: 이번 달 1일 00:00:00
+    """
+    now = timezone.now()
+    return now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+
+def calculate_transaction_stats(queryset, transaction_type_deposit,
+                               transaction_type_withdrawal, transaction_type_transfer):
+    """거래내역 통계 계산
+
+    Args:
+        queryset: Transaction queryset
+        transaction_type_deposit: 입금 타입 상수
+        transaction_type_withdrawal: 출금 타입 상수
+        transaction_type_transfer: 이체 타입 상수
+
+    Returns:
+        dict: income, expense, balance 포함
+    """
+    # 수입 합계
+    income = queryset.filter(
+        transaction_type=transaction_type_deposit
+    ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+
+    # 지출 합계
+    expense = queryset.filter(
+        transaction_type__in=[transaction_type_withdrawal, transaction_type_transfer]
+    ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+
+    return {
+        'income': income,
+        'expense': expense,
+        'balance': income - expense,
+    }
+
+
+def validate_period_parameter(period_str, min_val=1, max_val=24, default=6):
+    """기간 파라미터 검증
+
+    Args:
+        period_str: 검증할 기간 문자열
+        min_val: 최소값 (기본값: 1)
+        max_val: 최대값 (기본값: 24)
+        default: 기본값 (기본값: 6)
+
+    Returns:
+        int: 검증된 기간 값
+    """
+    try:
+        period = int(period_str)
+        return min(max(period, min_val), max_val)
+    except (ValueError, TypeError):
+        return default
+
 
 # ============= CONSTANTS ============= #
 LOGIN_URL = '/accounts/login/'
@@ -31,6 +119,52 @@ MSG_FORM_ERROR = '거래내역 {action}에 실패했습니다. 입력 내용을 
 
 
 # ============= BASE MIXINS =============
+class TransactionFilterMixin:
+    """거래내역 필터링 공통 기능
+
+    검색, 카테고리, 거래유형 필터 적용
+    """
+
+    def _apply_filters(self, queryset):
+        """검색 및 필터 적용
+
+        Args:
+            queryset: Transaction queryset
+
+        Returns:
+            필터가 적용된 queryset
+        """
+        # 검색 (Walrus 연산자)
+        if search := self.request.GET.get('search'):
+            queryset = queryset.filter(
+                Q(description__icontains=search) | Q(memo__icontains=search)
+            )
+
+        # 카테고리 필터
+        if category := self.request.GET.get('category'):
+            queryset = queryset.filter(category=category)
+
+        # 거래 유형 필터
+        if trans_type := self.request.GET.get('type'):
+            queryset = queryset.filter(transaction_type=trans_type)
+
+        return queryset
+
+    def _get_filter_context(self):
+        """필터 상태 컨텍스트
+
+        Returns:
+            dict: 필터 상태 정보
+        """
+        return {
+            'selected_category': self.request.GET.get('category', ''),
+            'selected_type': self.request.GET.get('type', ''),
+            'search_query': self.request.GET.get('search', ''),
+            'categories': Transaction.CATEGORY_CHOICES,
+            'transaction_types': Transaction.TRANSACTION_TYPE_CHOICES,
+        }
+
+
 class TransactionBaseMixin(LoginRequiredMixin):
     """거래내역 공통 설정"""
     model = Transaction
@@ -138,16 +272,12 @@ class TransactionListView(TransactionBaseMixin, TransactionFilterMixin, generic.
     def _get_monthly_stats(self):
         """이번 달 수입/지출 통계 계산"""
         try:
-            month_start = timezone.now().replace(
-                day=1, hour=0, minute=0, second=0, microsecond=0
-            )
-
+            month_start = get_current_month_start()
             month_trans = Transaction.objects.filter(
                 user=self.request.user,
                 transaction_date__gte=month_start
             )
 
-            # 공통 유틸리티 함수 사용
             stats = calculate_transaction_stats(
                 month_trans,
                 Transaction.DEPOSIT,
@@ -161,7 +291,6 @@ class TransactionListView(TransactionBaseMixin, TransactionFilterMixin, generic.
                 'monthly_balance': stats['balance'],
             }
         except Exception:
-            # 통계 계산 실패 시 기본값
             return {
                 'monthly_income': Decimal('0'),
                 'monthly_expense': Decimal('0'),
@@ -414,8 +543,6 @@ class DashboardView(LoginRequiredMixin, generic.TemplateView):
 
     def _convert_monthly_to_list(self, monthly_data, max_amount):
         """월별 데이터를 리스트로 변환"""
-        from datetime import datetime
-
         monthly_list = []
         for month_key in sorted(monthly_data.keys()):
             try:
@@ -555,8 +682,6 @@ class DashboardView(LoginRequiredMixin, generic.TemplateView):
 
     def _convert_daily_to_list(self, daily_data, max_daily):
         """일별 데이터를 리스트로 변환 (최근 14일)"""
-        from datetime import datetime
-
         daily_list = []
         for date_key in sorted(daily_data.keys(), reverse=True)[:14]:
             try:
