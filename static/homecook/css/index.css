@@ -13,11 +13,12 @@ header {
     color: white;
     padding: 20px;
     justify-content: space-between;
-    align-items: center;
+    
     position: relative;
 }
 
-.site-nav li {
+.site-nav li { 
+    color: rgb(0, 0, 0);
     display: inline;
     background: none;
     box-shadow: none;
@@ -42,7 +43,8 @@ ul {
     max-width: 700px;
 }
 
-li {
+/* 네비게이션을 제외한 메인 콘텐츠의 리스트 아이템만 스타일 적용 */
+main li {
     background-color: white;
     border-radius: 10px;
     margin-bottom: 12px;
@@ -51,7 +53,7 @@ li {
     transition: background-color 0.2s ease;
 }
 
-li:hover {
+main li:hover {
     background-color: #f0f4f8;
 }
 
