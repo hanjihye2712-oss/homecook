@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block title %}계좌 거래내역{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>💰 계좌 거래내역</h2>
+        <a href="{% url 'information:transaction_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> 거래내역 추가
+        </a>
+    </div>
+
+    <!-- 이번 달 통계 -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">이번 달 수입</h6>
+                    <h4 class="card-title text-success">{{ monthly_income|floatformat:0|default:"0" }}원</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center border-danger">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">이번 달 지출</h6>
+                    <h4 class="card-title text-danger">{{ monthly_expense|floatformat:0|default:"0" }}원</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center {% if monthly_balance >= 0 %}border-primary{% else %}border-warning{% endif %}">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">잔액</h6>
+                    <h4 class="card-title {% if monthly_balance >= 0 %}text-primary{% else %}text-warning{% endif %}">
+                        {{ monthly_balance|floatformat:0|default:"0" }}원
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 필터 및 검색 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">거래 유형</label>
+                    <select name="type" class="form-select">
+                        <option value="">전체</option>
+                        {% for value, label in transaction_types %}
+                        <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">카테고리</label>
+                    <select name="category" class="form-select">
+                        <option value="">전체</option>
+                        {% for value, label in categories %}
+                        <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">검색</label>
+                    <input type="text" name="search" class="form-control" placeholder="거래 내용, 메모 검색" value="{{ search_query }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-secondary w-100">필터 적용</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 거래내역 테이블 -->
+    {% if transactions %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>날짜</th>
+                            <th>유형</th>
+                            <th>카테고리</th>
+                            <th>내용</th>
+                            <th class="text-end">금액</th>
+                            <th class="text-end">잔액</th>
+                            <th class="text-center">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.transaction_date|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <span class="badge {% if transaction.transaction_type == 'deposit' %}bg-success{% elif transaction.transaction_type == 'withdrawal' %}bg-danger{% else %}bg-info{% endif %}">
+                                    {{ transaction.get_transaction_type_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ transaction.get_category_display }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'information:transaction_detail' transaction.pk %}" class="text-decoration-none">
+                                    {{ transaction.description|truncatewords:10 }}
+                                </a>
+                            </td>
+                            <td class="text-end {% if transaction.is_income %}text-success{% else %}text-danger{% endif %}">
+                                <strong>{{ transaction.get_amount_display }}</strong>
+                            </td>
+                            <td class="text-end text-muted">{{ transaction.get_balance_display }}</td>
+                            <td class="text-center">
+                                <a href="{% url 'information:transaction_update' transaction.pk %}" class="btn btn-sm btn-outline-primary">수정</a>
+                                <a href="{% url 'information:transaction_delete' transaction.pk %}" class="btn btn-sm btn-outline-danger">삭제</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 페이지네이션 -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">처음</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">이전</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">다음</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">마지막</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center">
+        <h5>등록된 거래내역이 없습니다.</h5>
+        <p class="mb-3">첫 거래내역을 등록해보세요!</p>
+        <a href="{% url 'information:transaction_create' %}" class="btn btn-primary">거래내역 추가하기</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.35em 0.65em;
+    }
+</style>
+{% endblock %}

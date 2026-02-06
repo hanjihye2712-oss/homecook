@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}거래내역 수정{% else %}거래내역 추가{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- 헤더 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>💰 {% if object %}거래내역 수정{% else %}거래내역 추가{% endif %}</h2>
+                <a href="{% url 'information:transaction_list' %}" class="btn btn-outline-secondary">취소</a>
+            </div>
+
+            <!-- 폼 카드 -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" id="transactionForm">
+                        {% csrf_token %}
+                        
+                        <!-- 거래 유형 -->
+                        <div class="mb-3">
+                            <label for="{{ form.transaction_type.id_for_label }}" class="form-label required">
+                                {{ form.transaction_type.label }}
+                            </label>
+                            {{ form.transaction_type }}
+                            {% if form.transaction_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.transaction_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 금액 -->
+                        <div class="mb-3">
+                            <label for="{{ form.amount.id_for_label }}" class="form-label required">
+                                {{ form.amount.label }}
+                            </label>
+                            {{ form.amount }}
+                            <div class="form-text">숫자만 입력하세요 (예: 50000)</div>
+                            {% if form.amount.errors %}
+                                <div class="text-danger small mt-1">{{ form.amount.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 카테고리 -->
+                        <div class="mb-3">
+                            <label for="{{ form.category.id_for_label }}" class="form-label required">
+                                {{ form.category.label }}
+                            </label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                                <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 거래 내용 -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label required">
+                                {{ form.description.label }}
+                            </label>
+                            {{ form.description }}
+                            <div class="form-text">거래 내용을 간단히 입력하세요 (최대 200자)</div>
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 거래 일시 -->
+                        <div class="mb-3">
+                            <label for="{{ form.transaction_date.id_for_label }}" class="form-label required">
+                                {{ form.transaction_date.label }}
+                            </label>
+                            {{ form.transaction_date }}
+                            <div class="form-text">거래가 발생한 날짜와 시간을 선택하세요</div>
+                            {% if form.transaction_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.transaction_date.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 거래 후 잔액 (선택) -->
+                        <div class="mb-3">
+                            <label for="{{ form.balance_after.id_for_label }}" class="form-label">
+                                {{ form.balance_after.label }} <span class="text-muted">(선택사항)</span>
+                            </label>
+                            {{ form.balance_after }}
+                            <div class="form-text">거래 후 계좌 잔액 (선택사항)</div>
+                            {% if form.balance_after.errors %}
+                                <div class="text-danger small mt-1">{{ form.balance_after.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 메모 (선택) -->
+                        <div class="mb-3">
+                            <label for="{{ form.memo.id_for_label }}" class="form-label">
+                                {{ form.memo.label }} <span class="text-muted">(선택사항)</span>
+                            </label>
+                            {{ form.memo }}
+                            <div class="form-text">추가 메모나 설명 (최대 500자)</div>
+                            {% if form.memo.errors %}
+                                <div class="text-danger small mt-1">{{ form.memo.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 제출 버튼 -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'information:transaction_list' %}" class="btn btn-secondary">취소</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if object %}수정 완료{% else %}등록하기{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 도움말 -->
+            <div class="alert alert-info mt-4">
+                <h6 class="alert-heading">💡 입력 가이드</h6>
+                <ul class="mb-0 small">
+                    <li><strong>거래 유형:</strong> 입금, 출금, 이체 중 선택</li>
+                    <li><strong>금액:</strong> 쉼표(,) 없이 숫자만 입력 (예: 50000)</li>
+                    <li><strong>카테고리:</strong> 식비, 교통비, 쇼핑, 공과금 등</li>
+                    <li><strong>거래 내용:</strong> 어떤 거래인지 간단히 설명</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-label.required::after {
+        content: " *";
+        color: red;
+    }
+    .card {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #transactionForm input[type="number"]::-webkit-inner-spin-button,
+    #transactionForm input[type="number"]::-webkit-outer-spin-button {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 금액 입력 시 천 단위 구분 표시 (선택적)
+    document.addEventListener('DOMContentLoaded', function() {
+        const amountInput = document.getElementById('{{ form.amount.id_for_label }}');
+        if (amountInput) {
+            amountInput.addEventListener('blur', function() {
+                if (this.value) {
+                    // 입력값 유효성 간단 체크
+                    const num = parseFloat(this.value);
+                    if (num < 0) {
+                        alert('금액은 0보다 커야 합니다.');
+                        this.focus();
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
