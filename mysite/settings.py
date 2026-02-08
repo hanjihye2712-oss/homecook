@@ -125,5 +125,5 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # 로그인 URL
 LOGIN_URL = '/accounts/login/'
 
-LOGIN_REDIRECT_URL = "homecook:landing"   
-LOGOUT_REDIRECT_URL = "homecook:landing"  
+LOGIN_REDIRECT_URL = "homecook:main_index"
+LOGOUT_REDIRECT_URL = "homecook:main_index"  

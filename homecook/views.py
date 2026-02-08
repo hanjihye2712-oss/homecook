@@ -128,14 +128,42 @@ class DeleteMessageMixin:
 
 
 # ============================================================================
-# 랜딩 페이지
+# 메인 인덱스 페이지 (2x2 카테고리 그리드)
+# ============================================================================
+
+class MainIndexView(generic.TemplateView):
+    """메인 페이지 - 4가지 카테고리 그리드"""
+    template_name = 'main_index.html'
+
+
+# ============================================================================
+# 카테고리별 플레이스홀더 페이지
+# ============================================================================
+
+class WalkingView(generic.TemplateView):
+    """오늘의 Walking 페이지"""
+    template_name = 'homecook/walking.html'
+
+
+class WeightView(generic.TemplateView):
+    """오늘의 Weight 페이지"""
+    template_name = 'homecook/weight.html'
+
+
+class HealingView(generic.TemplateView):
+    """오늘의 Healing 페이지"""
+    template_name = 'homecook/healing.html'
+
+
+# ============================================================================
+# 랜딩 페이지 (홈쿡)
 # ============================================================================
 
 class HomecookLandingView(generic.ListView):
     """홈쿡 랜딩 페이지 - 다른 사람들의 최근 음식 사진 8개 표시"""
     template_name = 'homecook/landing.html'
     context_object_name = 'recent_food_images'
-    
+
     def get_queryset(self):
         """모든 사용자의 최근 음식 사진 8개"""
         return FoodImage.objects.all()[:8]
