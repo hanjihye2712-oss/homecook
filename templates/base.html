@@ -62,7 +62,14 @@
                             <span class="nav-link">{{ user.username }}님</span>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'custom_logout' %}">로그아웃</a>
+                            <a class="nav-link" href="{% url 'accounts:custom_logout' %}">로그아웃</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">로그인</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:signup' %}">회원가입</a>
                         </li>
                     {% endif %}
                 </ul>
