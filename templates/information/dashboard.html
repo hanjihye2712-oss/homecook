@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}대시보드 - 거래내역 분석{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 페이지 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">
+            <i class="bi bi-bar-chart-fill"></i> 거래내역 대시보드
+        </h1>
+        <div>
+            <a href="{% url 'information:transaction_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-list-ul"></i> 목록 보기
+            </a>
+            <a href="{% url 'information:transaction_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> 거래 등록
+            </a>
+        </div>
+    </div>
+
+    <!-- 기간 선택 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-auto">
+                    <label for="period" class="form-label fw-bold">조회 기간</label>
+                    <select name="period" id="period" class="form-select" onchange="this.form.submit()">
+                        {% for option in period_options %}
+                        <option value="{{ option }}" {% if option == selected_period %}selected{% endif %}>
+                            최근 {{ option }}개월
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <small class="text-muted">총 {{ transaction_count }}건의 거래</small>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 요약 카드 -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body">
+                    <h6 class="card-title">총 수입</h6>
+                    <h3 class="mb-0">{{ total_income|floatformat:0|intcomma|default:"0" }}원</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger h-100">
+                <div class="card-body">
+                    <h6 class="card-title">총 지출</h6>
+                    <h3 class="mb-0">{{ total_expense|floatformat:0|intcomma|default:"0" }}원</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white {% if net_balance >= 0 %}bg-success{% else %}bg-warning{% endif %} h-100">
+                <div class="card-body">
+                    <h6 class="card-title">순 수지</h6>
+                    <h3 class="mb-0">
+                        {% if net_balance >= 0 %}+{% endif %}{{ net_balance|floatformat:0|intcomma|default:"0" }}원
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info h-100">
+                <div class="card-body">
+                    <h6 class="card-title">평균 거래액</h6>
+                    <h3 class="mb-0">{{ avg_amount|floatformat:0|intcomma|default:"0" }}원</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 월별 수입/지출 그래프 -->
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="bi bi-calendar3"></i> 월별 수입/지출 현황
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if monthly_data %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">월</th>
+                                <th style="width: 120px;">건수</th>
+                                <th>수입</th>
+                                <th>지출</th>
+                                <th style="width: 120px;">수지</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for month in monthly_data %}
+                            <tr>
+                                <td class="fw-bold">{{ month.month_display }}</td>
+                                <td>{{ month.count }}건</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="chart-bar-container" style="flex: 1;">
+                                            <div class="chart-bar chart-bar-income" 
+                                                 style="width: {{ month.income_percent }}%;"
+                                                 title="{{ month.income|floatformat:0 }}원">
+                                            </div>
+                                        </div>
+                                        <span class="ms-2 text-nowrap" style="min-width: 100px;">
+                                            {{ month.income|floatformat:0|intcomma }}원
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="chart-bar-container" style="flex: 1;">
+                                            <div class="chart-bar chart-bar-expense" 
+                                                 style="width: {{ month.expense_percent }}%;"
+                                                 title="{{ month.expense|floatformat:0 }}원">
+                                            </div>
+                                        </div>
+                                        <span class="ms-2 text-nowrap" style="min-width: 100px;">
+                                            {{ month.expense|floatformat:0|intcomma }}원
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="{% if month.balance >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                    {% if month.balance >= 0 %}+{% endif %}{{ month.balance|floatformat:0|intcomma }}원
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                    <p class="mt-3">선택한 기간의 거래 데이터가 없습니다.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- 카테고리별 지출 분석 -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart-fill"></i> 카테고리별 지출
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if category_data %}
+                        <div class="mb-3">
+                            <strong>총 지출: {{ total_category_expense|floatformat:0|intcomma }}원</strong>
+                        </div>
+                        <div class="category-chart">
+                            {% for cat in category_data %}
+                            <div class="category-item mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold">{{ cat.category_display }}</span>
+                                    <span class="text-muted">{{ cat.count }}건</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="chart-bar-container" style="flex: 1;">
+                                        <div class="chart-bar chart-bar-category" 
+                                             style="width: {{ cat.percent }}%;"
+                                             title="{{ cat.amount|floatformat:0 }}원">
+                                        </div>
+                                    </div>
+                                    <span class="ms-2 text-nowrap" style="min-width: 120px;">
+                                        {{ cat.amount|floatformat:0|intcomma }}원
+                                    </span>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted">{{ cat.percent|floatformat:1 }}%</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                            <p class="mt-3">지출 데이터가 없습니다.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 최근 14일 일별 추이 -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up"></i> 최근 14일 일별 추이
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if daily_trend %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 80px;">날짜</th>
+                                        <th>수입/지출</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for day in daily_trend %}
+                                    <tr>
+                                        <td class="fw-bold">{{ day.date_display }}</td>
+                                        <td>
+                                            {% if day.income > 0 %}
+                                            <div class="d-flex align-items-center mb-1">
+                                                <small class="text-muted me-2" style="width: 40px;">수입</small>
+                                                <div class="chart-bar-container" style="flex: 1;">
+                                                    <div class="chart-bar chart-bar-income-sm" 
+                                                         style="width: {{ day.income_percent }}%;">
+                                                    </div>
+                                                </div>
+                                                <span class="ms-2 small text-nowrap" style="min-width: 80px;">
+                                                    {{ day.income|floatformat:0|intcomma }}원
+                                                </span>
+                                            </div>
+                                            {% endif %}
+                                            {% if day.expense > 0 %}
+                                            <div class="d-flex align-items-center">
+                                                <small class="text-muted me-2" style="width: 40px;">지출</small>
+                                                <div class="chart-bar-container" style="flex: 1;">
+                                                    <div class="chart-bar chart-bar-expense-sm" 
+                                                         style="width: {{ day.expense_percent }}%;">
+                                                    </div>
+                                                </div>
+                                                <span class="ms-2 small text-nowrap" style="min-width: 80px;">
+                                                    {{ day.expense|floatformat:0|intcomma }}원
+                                                </span>
+                                            </div>
+                                            {% endif %}
+                                            {% if day.income == 0 and day.expense == 0 %}
+                                            <small class="text-muted">거래 없음</small>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                            <p class="mt-3">최근 거래 데이터가 없습니다.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 차트 막대 컨테이너 */
+.chart-bar-container {
+    height: 24px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 차트 막대 기본 스타일 */
+.chart-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease-in-out;
+    position: relative;
+    min-width: 2px;
+}
+
+/* 수입 막대 */
+.chart-bar-income {
+    background: linear-gradient(90deg, #0d6efd 0%, #0a58ca 100%);
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* 지출 막대 */
+.chart-bar-expense {
+    background: linear-gradient(90deg, #dc3545 0%, #b02a37 100%);
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* 카테고리 막대 */
+.chart-bar-category {
+    background: linear-gradient(90deg, #6610f2 0%, #520dc2 100%);
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* 작은 막대 (일별 추이) */
+.chart-bar-income-sm {
+    height: 100%;
+    background: linear-gradient(90deg, #0d6efd 0%, #0a58ca 100%);
+    border-radius: 3px;
+    min-width: 2px;
+}
+
+.chart-bar-expense-sm {
+    height: 100%;
+    background: linear-gradient(90deg, #dc3545 0%, #b02a37 100%);
+    border-radius: 3px;
+    min-width: 2px;
+}
+
+/* 호버 효과 */
+.chart-bar:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+/* 카테고리 아이템 */
+.category-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.category-item:last-child {
+    border-bottom: none;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .chart-bar-container {
+        height: 20px;
+    }
+    
+    .table {
+        font-size: 0.9rem;
+    }
+}
+
+/* 애니메이션 */
+@keyframes barGrow {
+    from {
+        width: 0;
+    }
+}
+
+.chart-bar {
+    animation: barGrow 0.6s ease-out;
+}
+
+/* 카드 hover 효과 */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+</style>
+{% endblock %}

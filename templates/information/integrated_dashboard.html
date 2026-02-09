@@ -1,0 +1,538 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}통합 대시보드{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- 페이지 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">
+            <i class="bi bi-grid-3x3-gap-fill"></i> 통합 대시보드
+        </h1>
+        <a href="{% url 'information:transaction_create' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle"></i> 거래 등록
+        </a>
+    </div>
+
+    <!-- ========== 대시보드 섹션 ========== -->
+    <section class="dashboard-section mb-5">
+        <!-- 기간 선택 & 요약 통계 -->
+        <div class="row g-3 mb-4">
+            <!-- 기간 선택 -->
+            <div class="col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <form method="get" id="periodForm">
+                            <!-- 기존 필터 유지 -->
+                            {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+                            {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                            {% if selected_type %}<input type="hidden" name="type" value="{{ selected_type }}">{% endif %}
+                            {% if start_date %}<input type="hidden" name="start_date" value="{{ start_date }}">{% endif %}
+                            {% if end_date %}<input type="hidden" name="end_date" value="{{ end_date }}">{% endif %}
+
+                            <label for="period" class="form-label fw-bold">
+                                <i class="bi bi-calendar-range"></i> 조회 기간
+                            </label>
+                            <select name="period" id="period" class="form-select" onchange="document.getElementById('periodForm').submit()">
+                                {% for option in period_options %}
+                                <option value="{{ option }}" {% if option == selected_period %}selected{% endif %}>
+                                    최근 {{ option }}개월
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted d-block mt-2">
+                                총 {{ transaction_count }}건
+                            </small>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 요약 카드 3개 -->
+            <div class="col-lg-3">
+                <div class="card text-white bg-primary h-100">
+                    <div class="card-body">
+                        <h6 class="card-title opacity-75">총 수입</h6>
+                        <h3 class="mb-0 fw-bold">{{ total_income|floatformat:0|intcomma|default:"0" }}원</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card text-white bg-danger h-100">
+                    <div class="card-body">
+                        <h6 class="card-title opacity-75">총 지출</h6>
+                        <h3 class="mb-0 fw-bold">{{ total_expense|floatformat:0|intcomma|default:"0" }}원</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card text-white {% if net_balance >= 0 %}bg-success{% else %}bg-warning{% endif %} h-100">
+                    <div class="card-body">
+                        <h6 class="card-title opacity-75">순 수지</h6>
+                        <h3 class="mb-0 fw-bold">
+                            {% if net_balance >= 0 %}+{% endif %}{{ net_balance|floatformat:0|intcomma|default:"0" }}원
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 그래프 2개: 카테고리 + 월별 -->
+        <div class="row g-4 mb-4">
+            <!-- 카테고리별 지출 -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-pie-chart-fill"></i> 카테고리별 지출
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if category_data %}
+                            <div class="mb-3 text-center">
+                                <strong>총 지출: {{ total_category_expense|floatformat:0|intcomma }}원</strong>
+                            </div>
+                            <div class="chart-container" style="position: relative; height: 250px; display: flex; justify-content: center; align-items: center;">
+                                <canvas id="categoryPieChart"></canvas>
+                            </div>
+                            <div class="mt-3" id="categoryLegend">
+                                {% for cat in category_data %}
+                                <div class="d-flex justify-content-between align-items-center mb-2 small">
+                                    <span>
+                                        <span class="category-legend-color" data-index="{{ forloop.counter0 }}"></span>
+                                        {{ cat.category_display }}
+                                    </span>
+                                    <span class="text-muted">{{ cat.amount|floatformat:0|intcomma }}원 ({{ cat.percent|floatformat:1 }}%)</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-center text-muted py-5 mb-0">데이터 없음</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 월별 수입/지출 -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-calendar3"></i> 월별 수입/지출
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if monthly_data %}
+                            <div class="chart-container" style="position: relative; height: 350px;">
+                                <canvas id="monthlyBarChart"></canvas>
+                            </div>
+                        {% else %}
+                            <p class="text-center text-muted py-5 mb-0">데이터 없음</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 구분선 -->
+    <hr class="my-5">
+
+    <!-- ========== 거래내역 섹션 ========== -->
+    <section class="transactions-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>
+                <i class="bi bi-list-ul"></i> 최근 거래내역
+            </h3>
+        </div>
+
+        <!-- 필터 및 검색 -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <!-- 기간 유지 -->
+                    <input type="hidden" name="period" value="{{ selected_period }}">
+
+                    <div class="col-md-2">
+                        <label class="form-label small">시작일</label>
+                        <input type="date" name="start_date" class="form-control form-control-sm"
+                               value="{{ start_date }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">종료일</label>
+                        <input type="date" name="end_date" class="form-control form-control-sm"
+                               value="{{ end_date }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">거래 유형</label>
+                        <select name="type" class="form-select form-select-sm">
+                            <option value="">전체</option>
+                            {% for value, label in transaction_types %}
+                            <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">카테고리</label>
+                        <select name="category" class="form-select form-select-sm">
+                            <option value="">전체</option>
+                            {% for value, label in categories %}
+                            <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">검색</label>
+                        <input type="text" name="search" class="form-control form-control-sm"
+                               placeholder="거래 내용, 메모" value="{{ search_query }}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-secondary btn-sm w-100">
+                            <i class="bi bi-funnel"></i> 필터 적용
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 거래내역 테이블 -->
+        {% if transactions %}
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>날짜</th>
+                            <th>유형</th>
+                            <th>카테고리</th>
+                            <th>내용</th>
+                            <th class="text-end">금액</th>
+                            <th class="text-center">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td class="small">{{ transaction.transaction_date|date:"Y/m/d H:i" }}</td>
+                            <td>
+                                <span class="badge badge-sm {% if transaction.transaction_type == 'deposit' %}bg-success{% elif transaction.transaction_type == 'withdrawal' %}bg-danger{% else %}bg-info{% endif %}">
+                                    {{ transaction.get_transaction_type_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-sm bg-secondary">{{ transaction.get_category_display }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'information:transaction_detail' transaction.pk %}" 
+                                   class="text-decoration-none small">
+                                    {{ transaction.description|truncatewords:8 }}
+                                </a>
+                            </td>
+                            <td class="text-end small {% if transaction.is_income %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                {{ transaction.amount|floatformat:0|intcomma }}원
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'information:transaction_update' transaction.pk %}" 
+                                       class="btn btn-outline-primary btn-sm">수정</a>
+                                    <a href="{% url 'information:transaction_delete' transaction.pk %}" 
+                                       class="btn btn-outline-danger btn-sm">삭제</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        {% if is_paginated %}
+        <nav class="mt-3">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&period={{ selected_period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">처음</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&period={{ selected_period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">이전</a>
+                </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                </li>
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&period={{ selected_period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">다음</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&period={{ selected_period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">마지막</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="alert alert-info text-center">
+            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+            <h5 class="mt-3">거래내역이 없습니다</h5>
+            <p class="mb-3">첫 거래를 등록해보세요!</p>
+            <a href="{% url 'information:transaction_create' %}" class="btn btn-primary">거래 등록하기</a>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<style>
+/* 차트 막대 - 컴팩트 버전 */
+.chart-bar-container {
+    height: 18px;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.chart-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    min-width: 2px;
+}
+
+.chart-bar-income {
+    background: linear-gradient(90deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+.chart-bar-expense {
+    background: linear-gradient(90deg, #dc3545 0%, #b02a37 100%);
+}
+
+.chart-bar-category {
+    background: linear-gradient(90deg, #6610f2 0%, #520dc2 100%);
+}
+
+/* 배지 크기 조정 */
+.badge-sm {
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+}
+
+/* 테이블 최적화 */
+.table-sm td, .table-sm th {
+    padding: 0.5rem;
+}
+
+/* 스크롤 영역 스타일 */
+.card-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.card-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+/* 카드 호버 */
+.card {
+    transition: box-shadow 0.2s;
+}
+
+.card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* 카테고리 범례 색상 */
+.category-legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    margin-right: 6px;
+}
+
+.chart-container {
+    position: relative;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// 카테고리별 지출 파이 차트
+{% if category_data %}
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('categoryPieChart');
+    if (ctx) {
+        // 데이터 준비
+        const labels = [
+            {% for cat in category_data %}
+            '{{ cat.category_display }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const data = [
+            {% for cat in category_data %}
+            {{ cat.amount }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        // 색상 팔레트
+        const colors = [
+            '#6610f2', // 보라
+            '#0d6efd', // 파랑
+            '#20c997', // 청록
+            '#ffc107', // 노랑
+            '#fd7e14', // 주황
+            '#dc3545', // 빨강
+            '#6c757d', // 회색
+            '#e83e8c', // 핑크
+        ];
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors.slice(0, data.length),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': ' + value.toLocaleString() + '원 (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 범례 색상 적용
+        const legendColors = document.querySelectorAll('.category-legend-color');
+        legendColors.forEach((elem) => {
+            const index = parseInt(elem.getAttribute('data-index'));
+            elem.style.backgroundColor = colors[index];
+        });
+    }
+});
+{% endif %}
+
+// 월별 수입/지출 세로 막대 차트
+{% if monthly_data %}
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('monthlyBarChart');
+    if (ctx) {
+        // 데이터 준비
+        const labels = [
+            {% for month in monthly_data %}
+            '{{ month.month_display }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const incomeData = [
+            {% for month in monthly_data %}
+            {{ month.income }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const expenseData = [
+            {% for month in monthly_data %}
+            {{ month.expense }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '수입',
+                        data: incomeData,
+                        backgroundColor: 'rgba(13, 110, 253, 0.8)', // 파랑
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '지출',
+                        data: expenseData,
+                        backgroundColor: 'rgba(220, 53, 69, 0.8)', // 빨강
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label || '';
+                                const value = context.parsed.y || 0;
+                                return label + ': ' + value.toLocaleString() + '원';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + '원';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

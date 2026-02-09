@@ -4,9 +4,15 @@ from . import views
 app_name = 'homecook'
 
 urlpatterns = [
-    # 랜딩 페이지
-    path('', views.HomecookLandingView.as_view(), name='landing'),
-    
+    # 메인 인덱스 페이지 (2x2 카테고리 그리드)
+    path('', views.MainIndexView.as_view(), name='main_index'),
+
+    # 카테고리별 페이지
+    path('walking/', views.WalkingView.as_view(), name='walking'),
+    path('weight/', views.WeightView.as_view(), name='weight'),
+    path('landing/', views.HomecookLandingView.as_view(), name='landing'),
+    path('healing/', views.HealingView.as_view(), name='healing'),
+
     # My Challenge 페이지 (세트 기반)
     path('my-challenge/', views.HomecookMyChallengeView.as_view(), name='my_challenge'),
     

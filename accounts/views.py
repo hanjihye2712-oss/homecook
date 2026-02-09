@@ -16,4 +16,4 @@ def signup(request):
 
 def custom_logout(request):
     logout(request)
-    return redirect('homecook:landing')
+    return redirect('homecook:main_index')
