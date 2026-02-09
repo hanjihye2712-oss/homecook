@@ -12,6 +12,11 @@ from collections import defaultdict
 from .models import Transaction
 from .forms import TransactionForm
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from accounts.models import UserProfile
+
 # ============= UTILITY FUNCTIONS ============= #
 
 def calculate_percentage(value, total):
@@ -76,9 +81,11 @@ def calculate_transaction_stats(queryset, transaction_type_deposit,
         transaction_type=transaction_type_deposit
     ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
 
-    # 지출 합계
+    # 지출 합계 (건강 포인트 전송 제외)
     expense = queryset.filter(
         transaction_type__in=[transaction_type_withdrawal, transaction_type_transfer]
+    ).exclude(
+        category='health_point'
     ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
 
     return {
@@ -302,7 +309,7 @@ class TransactionListView(TransactionBaseMixin, TransactionFilterMixin, generic.
                 month_trans,
                 Transaction.DEPOSIT,
                 Transaction.WITHDRAWAL,
-                Transaction.TRANSFER
+                Transaction.SEOULPAY
             )
 
             return {
@@ -475,7 +482,7 @@ class DashboardView(LoginRequiredMixin, generic.TemplateView):
                 qs,
                 Transaction.DEPOSIT,
                 Transaction.WITHDRAWAL,
-                Transaction.TRANSFER
+                Transaction.SEOULPAY
             )
 
             # 거래 건수 및 평균
@@ -587,7 +594,9 @@ class DashboardView(LoginRequiredMixin, generic.TemplateView):
         """카테고리별 지출 데이터"""
         try:
             qs = self._get_base_queryset(start_date, end_date).filter(
-                transaction_type__in=[Transaction.WITHDRAWAL, Transaction.TRANSFER]
+                transaction_type__in=[Transaction.WITHDRAWAL, Transaction.SEOULPAY]
+            ).exclude(
+                category=Transaction.HEALTH_POINT
             )
 
             # 카테고리별 집계
@@ -745,7 +754,7 @@ class IntegratedDashboardView(LoginRequiredMixin, TransactionFilterMixin, generi
             return Transaction.objects.none()
 
     def get_context_data(self, **kwargs):
-        """컨텍스트 데이터 추가 (대시보드 + 필터 상태)"""
+        """컨텍스트 데이터 추가 (대시보드 + 필터 상태 + 포인트)"""
         context = super().get_context_data(**kwargs)
 
         try:
@@ -762,5 +771,104 @@ class IntegratedDashboardView(LoginRequiredMixin, TransactionFilterMixin, generi
             # 대시보드 컨텍스트 생성 실패 시 기본값
             context.update(self._get_filter_context())
 
+        # 포인트 데이터 추가
+        try:
+            profile, created = UserProfile.objects.get_or_create(user=self.request.user)
+            point_transactions = Transaction.objects.filter(
+                user=self.request.user,
+                description__icontains='포인트'
+            )[:10]
+            context.update({
+                'profile': profile,
+                'points': profile.points,
+                'point_transactions': point_transactions,
+            })
+        except Exception:
+            context.update({
+                'points': 0,
+                'point_transactions': [],
+            })
+
         return context
 
+
+
+##
+
+@login_required
+def points_view(request):
+    """포인트 관리 페이지
+
+    Features:
+    - 현재 포인트 잔액 표시
+    - 포인트 거래 내역 표시
+    - 서울페이 연동 버튼
+    """
+    # UserProfile 가져오기 또는 생성
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    # 포인트 관련 거래내역 가져오기
+    point_transactions = Transaction.objects.filter(
+        user=request.user,
+        description__icontains='포인트'
+    )[:10]
+
+    context = {
+        'profile': profile,
+        'points': profile.points,
+        'point_transactions': point_transactions,
+    }
+
+    return render(request, 'information/points.html', context)
+
+
+@login_required
+@require_POST
+def transfer_to_seoulpay(request):
+    """서울페이로 포인트 전송
+
+    Features:
+    - 입력한 금액만큼 포인트 차감
+    - Transaction 기록 생성
+    - 서울페이 연동 (시뮬레이션)
+    """
+    # 전송할 포인트 금액 가져오기
+    amount = request.POST.get('amount')
+
+    try:
+        amount = int(amount)
+        if amount <= 0:
+            messages.error(request, '전송할 포인트는 0보다 커야 합니다.')
+            return redirect('information:integrated_dashboard')
+    except (ValueError, TypeError):
+        messages.error(request, '올바른 금액을 입력해주세요.')
+        return redirect('information:integrated_dashboard')
+
+    # UserProfile 가져오기
+    try:
+        profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=request.user)
+
+    # 포인트가 충분한지 확인
+    if profile.points < amount:
+        messages.error(request, f'포인트가 부족합니다. (현재: {profile.points:,}P, 필요: {amount:,}P)')
+        return redirect('information:integrated_dashboard')
+
+    # 포인트 차감
+    profile.deduct_points(amount, '서울페이로 전송')
+
+    # Transaction 기록 생성
+    Transaction.objects.create(
+        user=request.user,
+        transaction_type=Transaction.SEOULPAY,
+        amount=amount,
+        category=Transaction.HEALTH_POINT,
+        description='서울페이로 포인트 전송',
+        balance_after=profile.points,
+        transaction_date=timezone.now(),
+        memo=f'{amount:,}P를 서울페이로 전송'
+    )
+
+    messages.success(request, f'{amount:,}P가 서울페이로 전송되었습니다! 💳')
+    return redirect('information:integrated_dashboard')

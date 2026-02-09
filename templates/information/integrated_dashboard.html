@@ -140,6 +140,61 @@
     <!-- 구분선 -->
     <hr class="my-5">
 
+    <!-- ========== 포인트 섹션 ========== -->
+    <section class="points-section mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 id="points-section">
+                <i class="bi bi-gem"></i> 포인트 관리
+            </h3>
+        </div>
+
+        <!-- 포인트 잔액 & 서울페이 연동 -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card text-center border-primary h-100">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">현재 포인트</h6>
+                        <h2 class="card-title text-primary">{{ points|floatformat:0 }}P</h2>
+                        <p class="text-muted mb-0">챌린지 세트를 완성하면 100P씩 적립됩니다!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-success h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">서울페이 연동</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">건강 포인트를 서울페이로 전송하면 다양한 가맹점에서 사용할수 있습니다.</p>
+                        <form method="post" action="{% url 'information:transfer_to_seoulpay' %}" onsubmit="return confirmTransfer()">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="amount"
+                                    name="amount"
+                                    min="1"
+                                    max="{{ points }}"
+                                    placeholder="전송할 포인트"
+                                    required
+                                >
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-arrow-right-circle"></i> 전송
+                                </button>
+                            </div>
+                            <small class="text-muted">사용 가능: {{ points|floatformat:0 }}P</small>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- 구분선 -->
+    <hr class="my-5">
+
     <!-- ========== 거래내역 섹션 ========== -->
     <section class="transactions-section">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -217,7 +272,7 @@
                         <tr>
                             <td class="small">{{ transaction.transaction_date|date:"Y/m/d H:i" }}</td>
                             <td>
-                                <span class="badge badge-sm {% if transaction.transaction_type == 'deposit' %}bg-success{% elif transaction.transaction_type == 'withdrawal' %}bg-danger{% else %}bg-info{% endif %}">
+                                <span class="badge badge-sm {% if transaction.transaction_type == 'deposit' %}bg-success{% elif transaction.transaction_type == 'withdrawal' %}bg-danger{% elif transaction.transaction_type == 'seoulpay' %}bg-primary{% else %}bg-info{% endif %}">
                                     {{ transaction.get_transaction_type_display }}
                                 </span>
                             </td>
@@ -534,5 +589,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 {% endif %}
+
+// 서울페이 전송 확인
+function confirmTransfer() {
+    const amount = document.getElementById('amount').value;
+    if (!amount || amount <= 0) {
+        alert('올바른 금액을 입력해주세요.');
+        return false;
+    }
+    return confirm(`${amount}P를 서울페이로 전송하시겠습니까?\n\n전송 후에는 취소할 수 없습니다.`);
+}
 </script>
 {% endblock %}

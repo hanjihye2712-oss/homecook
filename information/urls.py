@@ -21,4 +21,8 @@ urlpatterns = [
 
     # 삭제
     path('<int:pk>/delete/', views.TransactionDeleteView.as_view(), name='transaction_delete'),
+
+    # 포인트
+    path('points/', views.points_view, name='points'),
+    path('transfer-to-seoulpay/', views.transfer_to_seoulpay, name='transfer_to_seoulpay'),
 ]

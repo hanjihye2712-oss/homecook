@@ -6,11 +6,13 @@
 {% endblock %}
 
 {% block content %}
-<h2>회원가입</h2>
-<form method="post" class="auth-form">
-{% csrf_token %} 
-{{ form.as_p }}
-<button type="submit">가입</button>
-</form>
-<a href="{% url 'login' %}">이미 계정이 있으신가요?</a>
+<div style="max-width: 400px; margin: 2rem auto; text-align: center;">
+    <h2>회원가입</h2>
+    <form method="post" class="auth-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">가입</button>
+    </form>
+    <a href="{% url 'login' %}">이미 계정이 있으신가요?</a>
+</div>
 {% endblock %}

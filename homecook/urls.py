@@ -20,7 +20,8 @@ urlpatterns = [
     path('challenge-set/create/', views.HomecookChallengeSetCreateView.as_view(), name='challenge_set_create'),
     path('challenge-set/<int:pk>/edit/', views.HomecookChallengeSetEditView.as_view(), name='challenge_set_edit'),
     path('challenge-set/<int:pk>/delete/', views.HomecookChallengeSetDeleteView.as_view(), name='challenge_set_delete'),
-    
+    path('challenge-set/<int:pk>/update-title/', views.update_challenge_set_title, name='challenge_set_update_title'),
+
     # 챌린지 세트에 항목 추가 (새로 추가)
     path('challenge-set/<int:set_pk>/add-food-image/', views.add_food_image_to_set, name='add_food_image_to_set'),
     path('challenge-set/<int:set_pk>/add-receipt/', views.add_receipt_to_set, name='add_receipt_to_set'),
