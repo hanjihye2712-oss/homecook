@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}💕Health Challenge{% endblock %}
+
+{% block content %}
+<style>
+    .main-hero {
+        background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+        padding: 3rem 0 2rem;
+        text-align: center;
+        color: white;
+    }
+    .main-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .main-hero p {
+        font-size: 1.1rem;
+        opacity: 0.85;
+    }
+    .category-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2.5rem 1rem 4rem;
+    }
+    .category-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: white;
+        border-radius: 20px;
+        padding: 3rem 1.5rem;
+        min-height: 220px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .category-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        color: white;
+        text-decoration: none;
+    }
+    .category-card .card-emoji {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+    }
+    .category-card .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+    .category-card .card-subtitle {
+        font-size: 0.9rem;
+        opacity: 0.85;
+    }
+    .card-walking {
+        background: linear-gradient(135deg, #4a4a4a, #7a7a7a);
+    }
+    .card-weight {
+        background: linear-gradient(135deg, #3d3d3d, #6b6b6b);
+    }
+    .card-homecook {
+        background: linear-gradient(135deg, #e17055, #fdcb6e);
+    }
+    .card-healing {
+        background: linear-gradient(135deg, #5a5a5a, #8a8a8a);
+    }
+    @media (max-width: 576px) {
+        .category-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .category-card {
+            min-height: 160px;
+            padding: 2rem 1rem;
+        }
+        .main-hero h1 {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<section class="category-grid">
+    <a href="{% url 'homecook:walking' %}" class="category-card card-walking">
+        <div class="card-emoji">🚶</div>
+        <div class="card-title">오늘의 Walking</div>
+    </a>
+    <a href="{% url 'homecook:weight' %}" class="category-card card-weight">
+        <div class="card-emoji">🏋️</div>
+        <div class="card-title">오늘의 Weight</div>
+    </a>
+    <a href="{% url 'homecook:landing' %}" class="category-card card-homecook">
+        <div class="card-emoji">🍳</div>
+        <div class="card-title">오늘의 Home Cook</div>
+    </a>
+    <a href="{% url 'homecook:healing' %}" class="category-card card-healing">
+        <div class="card-emoji">🧘</div>
+        <div class="card-title">오늘의 Healing</div>
+    </a>
+</section>
+{% endblock %}

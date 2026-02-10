@@ -10,12 +10,46 @@
     <link rel="stylesheet" href="{% static 'homecook/css/index.css' %}">
     <link rel="stylesheet" href="{% static 'homecook/css/detail.css' %}" />
     <link rel="stylesheet" href="{% static 'homecook/css/accounts.css' %}" />
+
+    <style>
+        /* 네비게이션 바 스타일 개선 */
+        .navbar .container {
+            padding-left: 0.1rem !important;
+            padding-right: 0.1rem !important;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-dark .nav-link {
+            color: #000000 !important;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 0.1rem 0.3rem !important;
+        }
+
+        .navbar-dark .nav-link:hover {
+            color: #333333 !important;
+        }
+
+        .navbar-nav.ms-auto {
+            margin-right: 1rem !important;
+        }
+
+        .navbar-nav .nav-item {
+            margin-left: 0.2rem;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
 </head>
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'homecook:landing' %}">🌱 Health Challenge 🌱</a>
+            <a class="navbar-brand" href="{% url 'homecook:main_index' %}">🌱 서울시와 함께하는 Health Challenge 🌱 </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -23,13 +57,20 @@
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'information:transaction_list' %}">💰건강 포인트 </a>
+                            <a class="nav-link" href="{% url 'information:integrated_dashboard' %}">💰건강 포인트 </a>
                         </li>
                         <li class="nav-item">
                             <span class="nav-link">{{ user.username }}님</span>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'custom_logout' %}">로그아웃</a>
+                            <a class="nav-link" href="{% url 'accounts:custom_logout' %}">로그아웃</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">로그인</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:signup' %}">회원가입</a>
                         </li>
                     {% endif %}
                 </ul>

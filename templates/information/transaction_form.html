@@ -76,30 +76,6 @@
                             {% endif %}
                         </div>
 
-                        <!-- 거래 후 잔액 (선택) -->
-                        <div class="mb-3">
-                            <label for="{{ form.balance_after.id_for_label }}" class="form-label">
-                                {{ form.balance_after.label }} <span class="text-muted">(선택사항)</span>
-                            </label>
-                            {{ form.balance_after }}
-                            <div class="form-text">거래 후 계좌 잔액 (선택사항)</div>
-                            {% if form.balance_after.errors %}
-                                <div class="text-danger small mt-1">{{ form.balance_after.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <!-- 메모 (선택) -->
-                        <div class="mb-3">
-                            <label for="{{ form.memo.id_for_label }}" class="form-label">
-                                {{ form.memo.label }} <span class="text-muted">(선택사항)</span>
-                            </label>
-                            {{ form.memo }}
-                            <div class="form-text">추가 메모나 설명 (최대 500자)</div>
-                            {% if form.memo.errors %}
-                                <div class="text-danger small mt-1">{{ form.memo.errors }}</div>
-                            {% endif %}
-                        </div>
-
                         <!-- 제출 버튼 -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                             <a href="{% url 'information:transaction_list' %}" class="btn btn-secondary">취소</a>
@@ -111,16 +87,6 @@
                 </div>
             </div>
 
-            <!-- 도움말 -->
-            <div class="alert alert-info mt-4">
-                <h6 class="alert-heading">💡 입력 가이드</h6>
-                <ul class="mb-0 small">
-                    <li><strong>거래 유형:</strong> 입금, 출금, 이체 중 선택</li>
-                    <li><strong>금액:</strong> 쉼표(,) 없이 숫자만 입력 (예: 50000)</li>
-                    <li><strong>카테고리:</strong> 식비, 교통비, 쇼핑, 공과금 등</li>
-                    <li><strong>거래 내용:</strong> 어떤 거래인지 간단히 설명</li>
-                </ul>
-            </div>
         </div>
     </div>
 </div>

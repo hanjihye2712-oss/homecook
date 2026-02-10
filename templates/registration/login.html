@@ -1,10 +1,12 @@
 {% extends "base.html" %} 
 {% load static %} 
 {% block content %}
-<h2>로그인</h2>
-<form method="post" class="auth-form">
-  {% csrf_token %} {{ form.as_p }}
-  <button type="submit">로그인</button>
-</form>
-<a href="{% url 'signup' %}">회원가입하기</a>
+<div style="max-width: 400px; margin: 2rem auto; text-align: center;">
+    <h2>로그인</h2>
+    <form method="post" class="auth-form">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit">로그인</button>
+    </form>
+    <a href="{% url 'accounts:signup' %}">회원가입하기</a>
+</div>
 {% endblock %}

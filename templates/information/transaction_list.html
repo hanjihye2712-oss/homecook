@@ -1,16 +1,22 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}계좌 거래내역{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <!-- 헤더 -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>💰 계좌 거래내역</h2>
+<!-- 헤더 -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>💰 계좌 거래내역</h2>
+    <div>
+        <a href="{% url 'information:dashboard' %}" class="btn btn-info me-2">
+            <i class="bi bi-bar-chart-fill"></i> 대시보드
+        </a>
         <a href="{% url 'information:transaction_create' %}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> 거래내역 추가
         </a>
     </div>
+</div>
 
     <!-- 이번 달 통계 -->
     <div class="row mb-4">
@@ -18,7 +24,7 @@
             <div class="card text-center border-success">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">이번 달 수입</h6>
-                    <h4 class="card-title text-success">{{ monthly_income|floatformat:0|default:"0" }}원</h4>
+                    <h4 class="card-title text-success">{{ monthly_income|floatformat:0|intcomma|default:"0" }}원</h4>
                 </div>
             </div>
         </div>
@@ -26,7 +32,7 @@
             <div class="card text-center border-danger">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">이번 달 지출</h6>
-                    <h4 class="card-title text-danger">{{ monthly_expense|floatformat:0|default:"0" }}원</h4>
+                    <h4 class="card-title text-danger">{{ monthly_expense|floatformat:0|intcomma|default:"0" }}원</h4>
                 </div>
             </div>
         </div>
@@ -35,7 +41,7 @@
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">잔액</h6>
                     <h4 class="card-title {% if monthly_balance >= 0 %}text-primary{% else %}text-warning{% endif %}">
-                        {{ monthly_balance|floatformat:0|default:"0" }}원
+                        {{ monthly_balance|floatformat:0|intcomma|default:"0" }}원
                     </h4>
                 </div>
             </div>

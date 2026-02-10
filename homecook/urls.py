@@ -4,9 +4,15 @@ from . import views
 app_name = 'homecook'
 
 urlpatterns = [
-    # 랜딩 페이지
-    path('', views.HomecookLandingView.as_view(), name='landing'),
-    
+    # 메인 인덱스 페이지 (2x2 카테고리 그리드)
+    path('', views.MainIndexView.as_view(), name='main_index'),
+
+    # 카테고리별 페이지
+    path('walking/', views.WalkingView.as_view(), name='walking'),
+    path('weight/', views.WeightView.as_view(), name='weight'),
+    path('landing/', views.HomecookLandingView.as_view(), name='landing'),
+    path('healing/', views.HealingView.as_view(), name='healing'),
+
     # My Challenge 페이지 (세트 기반)
     path('my-challenge/', views.HomecookMyChallengeView.as_view(), name='my_challenge'),
     
@@ -14,7 +20,8 @@ urlpatterns = [
     path('challenge-set/create/', views.HomecookChallengeSetCreateView.as_view(), name='challenge_set_create'),
     path('challenge-set/<int:pk>/edit/', views.HomecookChallengeSetEditView.as_view(), name='challenge_set_edit'),
     path('challenge-set/<int:pk>/delete/', views.HomecookChallengeSetDeleteView.as_view(), name='challenge_set_delete'),
-    
+    path('challenge-set/<int:pk>/update-title/', views.update_challenge_set_title, name='challenge_set_update_title'),
+
     # 챌린지 세트에 항목 추가 (새로 추가)
     path('challenge-set/<int:set_pk>/add-food-image/', views.add_food_image_to_set, name='add_food_image_to_set'),
     path('challenge-set/<int:set_pk>/add-receipt/', views.add_receipt_to_set, name='add_receipt_to_set'),

@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from .models import FoodImage, Receipt, Recipe, Journal, ChallengeSet
 from .forms import FoodImageForm, ReceiptForm, RecipeForm, JournalForm, ChallengeSetCreateForm
+from accounts.models import UserProfile
 import pytesseract
 from PIL import Image as PILImage
 import os
@@ -128,17 +129,45 @@ class DeleteMessageMixin:
 
 
 # ============================================================================
-# 랜딩 페이지
+# 메인 인덱스 페이지 (2x2 카테고리 그리드)
+# ============================================================================
+
+class MainIndexView(generic.TemplateView):
+    """메인 페이지 - 4가지 카테고리 그리드"""
+    template_name = 'main_index.html'
+
+
+# ============================================================================
+# 카테고리별 플레이스홀더 페이지
+# ============================================================================
+
+class WalkingView(generic.TemplateView):
+    """오늘의 Walking 페이지"""
+    template_name = 'homecook/walking.html'
+
+
+class WeightView(generic.TemplateView):
+    """오늘의 Weight 페이지"""
+    template_name = 'homecook/weight.html'
+
+
+class HealingView(generic.TemplateView):
+    """오늘의 Healing 페이지"""
+    template_name = 'homecook/healing.html'
+
+
+# ============================================================================
+# 랜딩 페이지 (홈쿡)
 # ============================================================================
 
 class HomecookLandingView(generic.ListView):
     """홈쿡 랜딩 페이지 - 다른 사람들의 최근 음식 사진 8개 표시"""
     template_name = 'homecook/landing.html'
     context_object_name = 'recent_food_images'
-    
+
     def get_queryset(self):
-        """모든 사용자의 최근 음식 사진 8개"""
-        return FoodImage.objects.all()[:8]
+        """모든 사용자의 최근 음식 사진 30개 (3개 x 10줄)"""
+        return FoodImage.objects.all()[:30]
 
 
 # ============================================================================
@@ -210,7 +239,12 @@ class HomecookChallengeSetCreateView(LoginRequiredMixin, generic.FormView):
         # 5. 기록장 추가 (선택사항)
         self._add_journal(form, challenge_set)
         
-        messages.success(self.request, '챌린지 세트가 성공적으로 생성되었습니다! 🎉')
+        # 6. 포인트 100P 적립
+        profile, _ = UserProfile.objects.get_or_create(user=self.request.user)
+        profile.points += 100
+        profile.save(update_fields=['points'])
+
+        messages.success(self.request, '챌린지 세트가 성공적으로 생성되었습니다! 100P가 적립되었습니다! 🎉')
         return redirect('homecook:my_challenge')
     
     def _add_food_image(self, form, challenge_set):
@@ -288,7 +322,19 @@ class HomecookChallengeSetEditView(LoginRequiredMixin, UserFilterMixin, generic.
         return context
 
 
-class HomecookChallengeSetDeleteView(LoginRequiredMixin, UserFilterMixin, 
+@login_required
+@require_POST
+def update_challenge_set_title(request, pk):
+    """챌린지 세트 제목 수정"""
+    challenge_set = get_object_or_404(ChallengeSet, pk=pk, user=request.user)
+    new_title = request.POST.get('title', '').strip()
+    if new_title:
+        challenge_set.title = new_title
+        challenge_set.save(update_fields=['title'])
+    return redirect('homecook:challenge_set_edit', pk=pk)
+
+
+class HomecookChallengeSetDeleteView(LoginRequiredMixin, UserFilterMixin,
                                      DeleteMessageMixin, generic.DeleteView):
     """챌린지 세트 삭제"""
     model = ChallengeSet
@@ -299,14 +345,19 @@ class HomecookChallengeSetDeleteView(LoginRequiredMixin, UserFilterMixin,
     
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        
+
         # 관련 파일들 삭제
         if hasattr(self.object, 'food_image') and self.object.food_image:
             delete_file_safely(self.object.food_image.image)
-        
+
         if hasattr(self.object, 'receipt') and self.object.receipt:
             delete_file_safely(self.object.receipt.image)
-        
+
+        # 포인트 100P 차감
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        profile.points = max(0, profile.points - 100)
+        profile.save(update_fields=['points'])
+
         return super().delete(request, *args, **kwargs)
 
 
