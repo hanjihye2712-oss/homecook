@@ -54,7 +54,7 @@ class FoodImage(models.Model):
 
 
 class Receipt(models.Model):
-    """테이블2: 영수증 OCR"""
+    """테이블2: 영수증"""
     challenge_set = models.OneToOneField(
         ChallengeSet,
         on_delete=models.CASCADE,
@@ -64,8 +64,6 @@ class Receipt(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receipts')
     image = models.ImageField(upload_to='receipts/%Y/%m/%d/', verbose_name='영수증 이미지')
-    ocr_text = models.TextField(blank=True, verbose_name='추출된 텍스트')
-    is_processed = models.BooleanField(default=False, verbose_name='처리 완료')
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

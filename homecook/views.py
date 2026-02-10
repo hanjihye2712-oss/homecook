@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 from .models import FoodImage, Receipt, Recipe, Journal, ChallengeSet
 from .forms import FoodImageForm, ReceiptForm, RecipeForm, JournalForm, ChallengeSetCreateForm
 from accounts.models import UserProfile
-import pytesseract
 from PIL import Image as PILImage
 import os
 import logging
@@ -26,31 +25,6 @@ RECOMMENDED_IMAGE_HEIGHT = 1000
 # ============================================================================
 # 유틸리티 함수들. 
 # ============================================================================
-
-def process_ocr(receipt):
-    """
-    영수증 OCR 처리 헬퍼 함수
-    
-    Args:
-        receipt: Receipt 모델 인스턴스
-    
-    Returns:
-        tuple: (success: bool, error_message: str or None)
-    """
-    try:
-        img = PILImage.open(receipt.image.path)
-        ocr_text = pytesseract.image_to_string(img, lang='kor+eng')
-        receipt.ocr_text = ocr_text.strip()
-        receipt.is_processed = True
-        receipt.save()
-        return True, None
-    except FileNotFoundError as e:
-        logger.error(f"OCR 처리 실패 - 파일을 찾을 수 없음: {e}")
-        return False, "영수증 이미지 파일을 찾을 수 없습니다."
-    except Exception as e:
-        logger.error(f"OCR 처리 실패: {e}")
-        return False, f"OCR 처리 중 오류가 발생했습니다: {str(e)}"
-
 
 def check_image_resolution(image_file):
     """
@@ -272,17 +246,12 @@ class HomecookChallengeSetCreateView(LoginRequiredMixin, generic.FormView):
         """영수증 추가 헬퍼 메서드"""
         if not form.cleaned_data.get('receipt_image'):
             return
-        
-        receipt = Receipt.objects.create(
+
+        Receipt.objects.create(
             user=self.request.user,
             challenge_set=challenge_set,
             image=form.cleaned_data['receipt_image']
         )
-        
-        # OCR 처리
-        success, error_msg = process_ocr(receipt)
-        if not success:
-            messages.warning(self.request, f'OCR 처리 실패: {error_msg}')
     
     def _add_recipe(self, form, challenge_set):
         """레시피 추가 헬퍼 메서드"""
@@ -406,13 +375,8 @@ def add_receipt_to_set(request, set_pk):
         receipt.user = request.user
         receipt.challenge_set = challenge_set
         receipt.save()
-        
-        # OCR 처리
-        success, error_msg = process_ocr(receipt)
-        if success:
-            messages.success(request, '영수증이 추가되고 OCR이 완료되었습니다! 🧾')
-        else:
-            messages.warning(request, f'영수증은 추가되었으나 OCR 실패: {error_msg}')
+
+        messages.success(request, '영수증이 추가되었습니다! 🧾')
     else:
         messages.error(request, '영수증 추가에 실패했습니다.')
     
@@ -541,21 +505,9 @@ class HomecookReceiptUpdateView(LoginRequiredMixin, UserFilterMixin, generic.Upd
         return reverse('homecook:receipt_detail', kwargs={'pk': self.object.pk})
     
     def form_valid(self, form):
-        # 이미지가 변경된 경우 OCR 재처리
-        if 'image' in form.changed_data:
-            response = super().form_valid(form)
-            success, error_msg = process_ocr(self.object)
-            
-            if success:
-                messages.success(self.request, '영수증이 수정되고 OCR이 재처리되었습니다! ✏️')
-            else:
-                messages.warning(self.request, f'수정되었으나 OCR 재처리 중 오류: {error_msg}')
-            
-            return response
-        else:
-            messages.success(self.request, '영수증이 성공적으로 수정되었습니다! ✏️')
-            return super().form_valid(form)
-    
+        messages.success(self.request, '영수증이 성공적으로 수정되었습니다! ✏️')
+        return super().form_valid(form)
+
     def form_invalid(self, form):
         messages.error(self.request, '수정에 실패했습니다.')
         return super().form_invalid(form)

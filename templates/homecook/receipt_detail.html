@@ -33,28 +33,8 @@
                             
                             <div class="mb-3">
                                 <strong>📅 업로드:</strong> {{ receipt.created_at|date:"Y.m.d H:i" }}<br>
-                                <strong>👤 작성자:</strong> {{ receipt.user.username }}<br>
-                                <strong>📊 처리 상태:</strong> 
-                                {% if receipt.is_processed %}
-                                    <span class="badge bg-success">처리완료</span>
-                                {% else %}
-                                    <span class="badge bg-warning">처리중</span>
-                                {% endif %}
+                                <strong>👤 작성자:</strong> {{ receipt.user.username }}
                             </div>
-                        </div>
-
-                        <!-- OCR 텍스트 -->
-                        <div class="col-md-6">
-                            <h5 class="mb-3">📝 추출된 텍스트</h5>
-                            {% if receipt.ocr_text %}
-                                <div class="ocr-text-full p-4 bg-light rounded">
-                                    <pre style="white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.9rem;">{{ receipt.ocr_text }}</pre>
-                                </div>
-                            {% else %}
-                                <div class="alert alert-warning">
-                                    텍스트가 아직 추출되지 않았습니다.
-                                </div>
-                            {% endif %}
                         </div>
                     </div>
 

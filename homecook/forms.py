@@ -168,7 +168,7 @@ class ChallengeSetCreateForm(forms.Form):
             'accept': 'image/*'
         }),
         label='영수증 이미지',
-        help_text='업로드 시 자동으로 텍스트를 추출합니다 (OCR)'
+        help_text='영수증 이미지를 업로드하세요'
     )
     
     # ========================================
