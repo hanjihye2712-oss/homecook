@@ -22,15 +22,14 @@ class ChallengeSet(models.Model):
 
 
 class FoodImage(models.Model):
-   # ⭐ 새로 추가된 필드!
+    """테이블1: 음식 이미지 (5MB, 1000x1000px)"""
     challenge_set = models.OneToOneField(
-        ChallengeSet, 
-        on_delete=models.CASCADE, 
+        ChallengeSet,
+        on_delete=models.CASCADE,
         related_name='food_image',
         null=True,
         blank=True
     )
-    """테이블1: 음식 이미지 (5MB, 1000x1000px)"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='food_images')
     image = models.ImageField(
         upload_to='food_images/%Y/%m/%d/',
@@ -55,15 +54,14 @@ class FoodImage(models.Model):
 
 
 class Receipt(models.Model):
-    # ⭐ 새로 추가된 필드!
+    """테이블2: 영수증 OCR"""
     challenge_set = models.OneToOneField(
-        ChallengeSet, 
-        on_delete=models.CASCADE, 
+        ChallengeSet,
+        on_delete=models.CASCADE,
         related_name='receipt',
         null=True,
         blank=True
     )
-    """테이블2: 영수증 OCR"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receipts')
     image = models.ImageField(upload_to='receipts/%Y/%m/%d/', verbose_name='영수증 이미지')
     ocr_text = models.TextField(blank=True, verbose_name='추출된 텍스트')
@@ -81,16 +79,14 @@ class Receipt(models.Model):
 
 
 class Recipe(models.Model):
-    # ⭐ 새로 추가된 필드!
+    """테이블3: 나의 레시피 (공개형, 300자 제한)"""
     challenge_set = models.OneToOneField(
-        ChallengeSet, 
-        on_delete=models.CASCADE, 
+        ChallengeSet,
+        on_delete=models.CASCADE,
         related_name='recipe',
         null=True,
         blank=True
     )
-
-    """테이블3: 나의 레시피 (공개형, 300자 제한)"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes')
     title = models.CharField(max_length=100, verbose_name='레시피 제목')
     content = models.TextField(
@@ -116,11 +112,9 @@ class Recipe(models.Model):
         """미리보기용 (50자)"""
         return self.content[:50] + '...' if len(self.content) > 50 else self.content
 
-    # ⭐ 2. 좋아요 개수 메서드 추가 (새로 추가!)
     def total_likes(self):
         """총 좋아요 수"""
         return self.likes.count()
-
 
 
 class Journal(models.Model):
@@ -131,15 +125,13 @@ class Journal(models.Model):
         (PUBLIC, '공개'),
         (PRIVATE, '비공개'),
     ]
-    # ⭐ 새로 추가된 필드!
     challenge_set = models.OneToOneField(
-        ChallengeSet, 
-        on_delete=models.CASCADE, 
+        ChallengeSet,
+        on_delete=models.CASCADE,
         related_name='journal',
         null=True,
         blank=True
     )
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='journals')
     title = models.CharField(max_length=100, verbose_name='제목')
     content = models.TextField(
@@ -155,15 +147,15 @@ class Journal(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
-class Meta:
+
+    class Meta:
         ordering = ['-created_at']
         verbose_name = '기록장'
         verbose_name_plural = '기록장 목록'
-    
-def __str__(self):
+
+    def __str__(self):
         return f"{self.title} ({self.get_visibility_display()})"
-    
-def content_preview(self):
+
+    def content_preview(self):
         """미리보기용 (30자)"""
         return self.content[:30] + '...' if len(self.content) > 30 else self.content

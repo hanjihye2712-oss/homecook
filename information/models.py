@@ -27,6 +27,9 @@ class Transaction(models.Model):
     UTILITY = 'utility'
     ENTERTAINMENT = 'entertainment'
     HEALTH_POINT = 'health_point'
+    RENT = 'rent'
+    INTEREST = 'interest'
+    MAINTENANCE = 'maintenance'
     OTHER = 'other'
 
     CATEGORY_CHOICES = [
@@ -38,6 +41,9 @@ class Transaction(models.Model):
         (UTILITY, '공과금'),
         (ENTERTAINMENT, '여가/문화'),
         (HEALTH_POINT, '건강 포인트'),
+        (RENT, '월세'),
+        (INTEREST, '이자'),
+        (MAINTENANCE, '관리비'),
         (OTHER, '기타'),
     ]
     
@@ -45,7 +51,7 @@ class Transaction(models.Model):
     transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPE_CHOICES, verbose_name='거래 유형')
     amount = models.DecimalField(max_digits=12, decimal_places=0, validators=[MinValueValidator(0)], verbose_name='금액')
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, verbose_name='카테고리')
-    description = models.CharField(max_length=200, verbose_name='내용', help_text='거래 내용을 입력하세요 (최대 200자)')
+    description = models.CharField(max_length=200, blank=True, default='', verbose_name='내용', help_text='거래 내용을 입력하세요 (선택사항, 최대 200자)')
     balance_after = models.DecimalField(max_digits=12, decimal_places=0, blank=True, null=True, verbose_name='거래 후 잔액')
     transaction_date = models.DateTimeField(verbose_name='거래 일시')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='등록 일시')

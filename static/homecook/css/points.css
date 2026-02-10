@@ -1,0 +1,12 @@
+/* ===== 포인트 관리 페이지 ===== */
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+.badge {
+    font-size: 0.85rem;
+    padding: 0.35em 0.65em;
+}
+.card-header {
+    font-weight: 600;
+}

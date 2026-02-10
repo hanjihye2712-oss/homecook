@@ -1,0 +1,7 @@
+/* ===== 거래내역 상세 페이지 ===== */
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+hr {
+    margin: 1rem 0;
+}

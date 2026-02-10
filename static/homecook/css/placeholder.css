@@ -1,0 +1,49 @@
+/* ===== 준비 중 페이지 공통 스타일 (Walking, Weight, Healing) ===== */
+.page-hero {
+    padding: 4rem 0;
+    text-align: center;
+    color: white;
+}
+.page-hero .emoji { font-size: 4rem; margin-bottom: 1rem; }
+.page-hero h1 { font-size: 2.5rem; font-weight: 700; }
+.page-hero p { font-size: 1.1rem; opacity: 0.85; margin-top: 0.5rem; }
+
+.coming-soon {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: #636e72;
+}
+.coming-soon h2 { font-size: 1.5rem; margin-bottom: 1rem; }
+
+.back-btn {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.7rem 2rem;
+    color: white;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+.back-btn:hover { color: white; }
+
+/* Walking 페이지 */
+.page-hero.hero-walking {
+    background: linear-gradient(135deg, #00b894, #00cec9);
+}
+.back-btn.btn-walking { background: #00b894; }
+.back-btn.btn-walking:hover { background: #00a381; }
+
+/* Weight 페이지 */
+.page-hero.hero-weight {
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+}
+.back-btn.btn-weight { background: #6c5ce7; }
+.back-btn.btn-weight:hover { background: #5a4bd1; }
+
+/* Healing 페이지 */
+.page-hero.hero-healing {
+    background: linear-gradient(135deg, #0984e3, #74b9ff);
+}
+.back-btn.btn-healing { background: #0984e3; }
+.back-btn.btn-healing:hover { background: #0770c2; }

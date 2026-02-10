@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block title %}{% if object %}거래내역 수정{% else %}거래내역 추가{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/transaction_form.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -54,11 +59,11 @@
 
                         <!-- 거래 내용 -->
                         <div class="mb-3">
-                            <label for="{{ form.description.id_for_label }}" class="form-label required">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
                                 {{ form.description.label }}
                             </label>
                             {{ form.description }}
-                            <div class="form-text">거래 내용을 간단히 입력하세요 (최대 200자)</div>
+                            <div class="form-text">거래 내용을 간단히 입력하세요 (선택사항, 최대 200자)</div>
                             {% if form.description.errors %}
                                 <div class="text-danger small mt-1">{{ form.description.errors }}</div>
                             {% endif %}
@@ -90,22 +95,6 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .form-label.required::after {
-        content: " *";
-        color: red;
-    }
-    .card {
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    #transactionForm input[type="number"]::-webkit-inner-spin-button,
-    #transactionForm input[type="number"]::-webkit-outer-spin-button {
-        opacity: 1;
-    }
-</style>
 {% endblock %}
 
 {% block extra_js %}

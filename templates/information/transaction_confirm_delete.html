@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block title %}거래내역 삭제{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/transaction_delete.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -83,15 +88,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .card-header {
-        font-weight: 600;
-    }
-    .border-danger {
-        border-width: 2px !important;
-    }
-</style>
 {% endblock %}

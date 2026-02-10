@@ -4,6 +4,10 @@
 
 {% block title %}통합 대시보드{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/integrated_dashboard.css' %}" />
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
     <!-- 페이지 헤더 -->
@@ -342,90 +346,6 @@
         {% endif %}
     </section>
 </div>
-
-<style>
-/* 차트 막대 - 컴팩트 버전 */
-.chart-bar-container {
-    height: 18px;
-    background-color: #f0f0f0;
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-.chart-bar {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 0.3s ease;
-    min-width: 2px;
-}
-
-.chart-bar-income {
-    background: linear-gradient(90deg, #0d6efd 0%, #0a58ca 100%);
-}
-
-.chart-bar-expense {
-    background: linear-gradient(90deg, #dc3545 0%, #b02a37 100%);
-}
-
-.chart-bar-category {
-    background: linear-gradient(90deg, #6610f2 0%, #520dc2 100%);
-}
-
-/* 배지 크기 조정 */
-.badge-sm {
-    font-size: 0.75rem;
-    padding: 0.25em 0.5em;
-}
-
-/* 테이블 최적화 */
-.table-sm td, .table-sm th {
-    padding: 0.5rem;
-}
-
-/* 스크롤 영역 스타일 */
-.card-body::-webkit-scrollbar {
-    width: 6px;
-}
-
-.card-body::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.card-body::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-}
-
-/* 카드 호버 */
-.card {
-    transition: box-shadow 0.2s;
-}
-
-.card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* 반응형 */
-@media (max-width: 768px) {
-    .container-fluid {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }
-}
-
-/* 카테고리 범례 색상 */
-.category-legend-color {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    margin-right: 6px;
-}
-
-.chart-container {
-    position: relative;
-}
-</style>
 {% endblock %}
 
 {% block extra_js %}

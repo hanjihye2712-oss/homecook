@@ -1,4 +1,4 @@
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import Http404, JsonResponse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, F
@@ -179,7 +179,7 @@ class HomecookMyChallengeView(LoginRequiredMixin, generic.ListView):
     model = ChallengeSet
     template_name = 'homecook/my_challenge.html'
     context_object_name = 'challenge_sets'
-    login_url = '/admin/login/'
+
     paginate_by = 10
     
     def get_queryset(self):
@@ -218,7 +218,7 @@ class HomecookChallengeSetCreateView(LoginRequiredMixin, generic.FormView):
     """통합 챌린지 세트 생성 - 모든 항목을 한 번에 입력"""
     form_class = ChallengeSetCreateForm
     template_name = 'homecook/challenge_set_create_all.html'
-    login_url = '/admin/login/'
+
     
     def form_valid(self, form):
         # 1. 챌린지 세트 생성
@@ -311,7 +311,7 @@ class HomecookChallengeSetEditView(LoginRequiredMixin, UserFilterMixin, generic.
     model = ChallengeSet
     template_name = 'homecook/challenge_set_edit.html'
     context_object_name = 'challenge_set'
-    login_url = '/admin/login/'
+
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -340,7 +340,7 @@ class HomecookChallengeSetDeleteView(LoginRequiredMixin, UserFilterMixin,
     model = ChallengeSet
     template_name = 'homecook/challenge_set_confirm_delete.html'
     success_url = reverse_lazy('homecook:my_challenge')
-    login_url = '/admin/login/'
+
     delete_message = '챌린지 세트가 삭제되었습니다. 🗑️'
     
     def delete(self, request, *args, **kwargs):
@@ -468,7 +468,7 @@ class HomecookFoodImageDetailView(LoginRequiredMixin, UserFilterMixin, generic.D
     model = FoodImage
     template_name = 'homecook/food_image_detail.html'
     context_object_name = 'food_image'
-    login_url = '/admin/login/'
+
 
 
 class HomecookReceiptDetailView(LoginRequiredMixin, UserFilterMixin, generic.DetailView):
@@ -476,7 +476,7 @@ class HomecookReceiptDetailView(LoginRequiredMixin, UserFilterMixin, generic.Det
     model = Receipt
     template_name = 'homecook/receipt_detail.html'
     context_object_name = 'receipt'
-    login_url = '/admin/login/'
+
 
 
 class HomecookRecipeDetailView(generic.DetailView):
@@ -523,7 +523,7 @@ class HomecookFoodImageUpdateView(LoginRequiredMixin, UserFilterMixin,
     model = FoodImage
     form_class = FoodImageForm
     template_name = 'homecook/food_image_form.html'
-    login_url = '/admin/login/'
+
     success_message = '음식 이미지가 성공적으로 수정되었습니다! ✏️'
     
     def get_success_url(self):
@@ -535,7 +535,7 @@ class HomecookReceiptUpdateView(LoginRequiredMixin, UserFilterMixin, generic.Upd
     model = Receipt
     form_class = ReceiptForm
     template_name = 'homecook/receipt_form.html'
-    login_url = '/admin/login/'
+
     
     def get_success_url(self):
         return reverse('homecook:receipt_detail', kwargs={'pk': self.object.pk})
@@ -567,7 +567,7 @@ class HomecookRecipeUpdateView(LoginRequiredMixin, UserFilterMixin,
     model = Recipe
     form_class = RecipeForm
     template_name = 'homecook/recipe_form.html'
-    login_url = '/admin/login/'
+
     success_message = '레시피가 성공적으로 수정되었습니다! ✏️'
     
     def get_success_url(self):
@@ -579,7 +579,7 @@ class HomecookJournalUpdateView(LoginRequiredMixin, UserFilterMixin, generic.Upd
     model = Journal
     form_class = JournalForm
     template_name = 'homecook/journal_form.html'
-    login_url = '/admin/login/'
+
     
     def get_success_url(self):
         return reverse('homecook:journal_detail', kwargs={'pk': self.object.pk})
@@ -604,7 +604,7 @@ class HomecookFoodImageDeleteView(LoginRequiredMixin, UserFilterMixin,
     model = FoodImage
     template_name = 'homecook/food_image_confirm_delete.html'
     success_url = reverse_lazy('homecook:my_challenge')
-    login_url = '/admin/login/'
+
     delete_message = '음식 이미지가 삭제되었습니다. 🗑️'
     
     def delete(self, request, *args, **kwargs):
@@ -619,7 +619,7 @@ class HomecookReceiptDeleteView(LoginRequiredMixin, UserFilterMixin,
     model = Receipt
     template_name = 'homecook/receipt_confirm_delete.html'
     success_url = reverse_lazy('homecook:my_challenge')
-    login_url = '/admin/login/'
+
     delete_message = '영수증이 삭제되었습니다. 🗑️'
     
     def delete(self, request, *args, **kwargs):
@@ -634,7 +634,7 @@ class HomecookRecipeDeleteView(LoginRequiredMixin, UserFilterMixin,
     model = Recipe
     template_name = 'homecook/recipe_confirm_delete.html'
     success_url = reverse_lazy('homecook:my_challenge')
-    login_url = '/admin/login/'
+
     delete_message = '레시피가 삭제되었습니다. 🗑️'
 
 
@@ -644,7 +644,7 @@ class HomecookJournalDeleteView(LoginRequiredMixin, UserFilterMixin,
     model = Journal
     template_name = 'homecook/journal_confirm_delete.html'
     success_url = reverse_lazy('homecook:my_challenge')
-    login_url = '/admin/login/'
+
     delete_message = '기록이 삭제되었습니다. 🗑️'
 
 

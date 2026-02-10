@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block title %}거래내역 상세{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/transaction_detail.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -98,15 +103,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    hr {
-        margin: 1rem 0;
-    }
-</style>
 {% endblock %}

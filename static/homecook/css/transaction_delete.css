@@ -1,0 +1,7 @@
+/* ===== 거래내역 삭제 확인 페이지 ===== */
+.card-header {
+    font-weight: 600;
+}
+.border-danger {
+    border-width: 2px !important;
+}

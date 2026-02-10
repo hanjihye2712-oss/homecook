@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block title %}영수증 #{{ receipt.id }} - Homecook{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/receipt_detail.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -70,14 +75,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .ocr-text-full {
-        max-height: 500px;
-        overflow-y: auto;
-        border: 1px solid #dee2e6;
-    }
-</style>
 {% endblock %}

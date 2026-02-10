@@ -1,0 +1,30 @@
+/* ===== 네비게이션 바 스타일 ===== */
+.navbar .container {
+    padding-left: 0.1rem !important;
+    padding-right: 0.1rem !important;
+}
+
+.navbar-brand {
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px;
+}
+
+.navbar-dark .nav-link {
+    color: #000000 !important;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 0.1rem 0.3rem !important;
+}
+
+.navbar-dark .nav-link:hover {
+    color: #333333 !important;
+}
+
+.navbar-nav.ms-auto {
+    margin-right: 1rem !important;
+}
+
+.navbar-nav .nav-item {
+    margin-left: 0.2rem;
+}

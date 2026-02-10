@@ -1,0 +1,6 @@
+/* ===== 영수증 상세 페이지 ===== */
+.ocr-text-full {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+}

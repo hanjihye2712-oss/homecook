@@ -1,0 +1,95 @@
+/* ===== 메인 인덱스 페이지 (2x2 카테고리 그리드) ===== */
+.main-hero {
+    background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+    padding: 3rem 0 2rem;
+    text-align: center;
+    color: white;
+}
+.main-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.main-hero p {
+    font-size: 1.1rem;
+    opacity: 0.85;
+}
+.category-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2.5rem 1rem 4rem;
+}
+.category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    border-radius: 20px;
+    padding: 3rem 1.5rem;
+    min-height: 220px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.category-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    color: white;
+    text-decoration: none;
+}
+.category-card .card-emoji {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+.category-card .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+}
+.category-card .card-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+.card-walking {
+    background: linear-gradient(135deg, #b0b0b0, #d0d0d0);
+}
+.card-weight {
+    background: linear-gradient(135deg, #a8a8a8, #c8c8c8);
+}
+.card-homecook {
+    background: linear-gradient(135deg, #e17055, #fdcb6e);
+}
+.card-healing {
+    background: linear-gradient(135deg, #b8b8b8, #d8d8d8);
+}
+/* 준비중 카드 이모지 흑백 */
+.card-walking .card-emoji,
+.card-weight .card-emoji,
+.card-healing .card-emoji {
+    filter: grayscale(100%);
+}
+/* 준비중 뱃지 */
+.card-badge-coming {
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0.8;
+    margin-top: 0.5rem;
+}
+@media (max-width: 576px) {
+    .category-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .category-card {
+        min-height: 160px;
+        padding: 2rem 1rem;
+    }
+    .main-hero h1 {
+        font-size: 1.8rem;
+    }
+}

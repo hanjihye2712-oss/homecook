@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load humanize %}
 
 {% block title %}계좌 거래내역{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/transaction_list.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -168,17 +173,4 @@
     </div>
     {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .table th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-    }
-    .badge {
-        font-size: 0.85rem;
-        padding: 0.35em 0.65em;
-    }
-</style>
 {% endblock %}

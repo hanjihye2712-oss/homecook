@@ -1,0 +1,12 @@
+/* ===== 거래내역 등록/수정 폼 ===== */
+.form-label.required::after {
+    content: " *";
+    color: red;
+}
+.card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+#transactionForm input[type="number"]::-webkit-inner-spin-button,
+#transactionForm input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+}

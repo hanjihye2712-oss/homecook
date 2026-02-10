@@ -5,7 +5,12 @@ from django.core.exceptions import ValidationError
 
 class TransactionForm(forms.ModelForm):
     """거래내역 생성/수정 폼"""
-    
+    description = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': '거래 내용을 입력하세요',
+        'maxlength': '200',
+    }), label='거래 내용', max_length=200)
+
     class Meta:
         model = Transaction
         fields = ['transaction_type', 'amount', 'category', 'description',
@@ -20,12 +25,6 @@ class TransactionForm(forms.ModelForm):
                 'required': True
             }),
             'category': forms.Select(attrs={'class': 'form-select', 'required': True}),
-            'description': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': '거래 내용을 입력하세요',
-                'maxlength': '200',
-                'required': True
-            }),
             'transaction_date': forms.DateTimeInput(attrs={
                 'class': 'form-control',
                 'type': 'datetime-local',
@@ -36,7 +35,6 @@ class TransactionForm(forms.ModelForm):
             'transaction_type': '거래 유형',
             'amount': '금액',
             'category': '카테고리',
-            'description': '거래 내용',
             'transaction_date': '거래 일시',
         }
 
