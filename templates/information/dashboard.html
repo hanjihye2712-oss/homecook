@@ -12,15 +12,13 @@
 <div class="container py-4">
     <!-- 페이지 헤더 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2">
-            <i class="bi bi-bar-chart-fill"></i> 거래내역 대시보드
-        </h1>
+        <h1 class="h2">거래내역 대시보드</h1>
         <div>
             <a href="{% url 'information:transaction_list' %}" class="btn btn-outline-secondary">
-                <i class="bi bi-list-ul"></i> 목록 보기
+                목록 보기
             </a>
             <a href="{% url 'information:transaction_create' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> 거래 등록
+                거래 등록
             </a>
         </div>
     </div>
@@ -49,25 +47,25 @@
     <!-- 요약 카드 -->
     <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="card text-white bg-primary h-100">
+            <div class="card h-100">
                 <div class="card-body">
-                    <h6 class="card-title">총 수입</h6>
+                    <h6 class="card-title text-success">총 수입</h6>
                     <h3 class="mb-0">{{ total_income|floatformat:0|intcomma|default:"0" }}원</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white bg-danger h-100">
+            <div class="card h-100">
                 <div class="card-body">
-                    <h6 class="card-title">총 지출</h6>
+                    <h6 class="card-title text-danger">총 지출</h6>
                     <h3 class="mb-0">{{ total_expense|floatformat:0|intcomma|default:"0" }}원</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white {% if net_balance >= 0 %}bg-success{% else %}bg-warning{% endif %} h-100">
+            <div class="card h-100">
                 <div class="card-body">
-                    <h6 class="card-title">순 수지</h6>
+                    <h6 class="card-title text-muted">순 수지</h6>
                     <h3 class="mb-0">
                         {% if net_balance >= 0 %}+{% endif %}{{ net_balance|floatformat:0|intcomma|default:"0" }}원
                     </h3>
@@ -75,9 +73,9 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white bg-info h-100">
+            <div class="card h-100">
                 <div class="card-body">
-                    <h6 class="card-title">평균 거래액</h6>
+                    <h6 class="card-title text-muted">평균 거래액</h6>
                     <h3 class="mb-0">{{ avg_amount|floatformat:0|intcomma|default:"0" }}원</h3>
                 </div>
             </div>
@@ -86,10 +84,8 @@
 
     <!-- 월별 수입/지출 그래프 -->
     <div class="card mb-4">
-        <div class="card-header bg-white">
-            <h5 class="mb-0">
-                <i class="bi bi-calendar3"></i> 월별 수입/지출 현황
-            </h5>
+        <div class="card-header">
+            <h5 class="mb-0">월별 수입/지출 현황</h5>
         </div>
         <div class="card-body">
             {% if monthly_data %}
@@ -145,7 +141,6 @@
                 </div>
             {% else %}
                 <div class="text-center py-5 text-muted">
-                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
                     <p class="mt-3">선택한 기간의 거래 데이터가 없습니다.</p>
                 </div>
             {% endif %}
@@ -156,10 +151,8 @@
         <!-- 카테고리별 지출 분석 -->
         <div class="col-lg-6">
             <div class="card h-100">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-pie-chart-fill"></i> 카테고리별 지출
-                    </h5>
+                <div class="card-header">
+                    <h5 class="mb-0">카테고리별 지출</h5>
                 </div>
                 <div class="card-body">
                     {% if category_data %}
@@ -192,7 +185,6 @@
                         </div>
                     {% else %}
                         <div class="text-center py-5 text-muted">
-                            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
                             <p class="mt-3">지출 데이터가 없습니다.</p>
                         </div>
                     {% endif %}
@@ -203,10 +195,8 @@
         <!-- 최근 14일 일별 추이 -->
         <div class="col-lg-6">
             <div class="card h-100">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-graph-up"></i> 최근 14일 일별 추이
-                    </h5>
+                <div class="card-header">
+                    <h5 class="mb-0">최근 14일 일별 추이</h5>
                 </div>
                 <div class="card-body">
                     {% if daily_trend %}
@@ -260,7 +250,6 @@
                         </div>
                     {% else %}
                         <div class="text-center py-5 text-muted">
-                            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
                             <p class="mt-3">최근 거래 데이터가 없습니다.</p>
                         </div>
                     {% endif %}

@@ -1,18 +1,36 @@
-{% extends "base.html" %} 
-{% load static %} 
+{% extends "base.html" %}
+{% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+<link rel="stylesheet" href="{% static 'homecook/css/accounts.css' %}">
+<style>
+    .auth-form p {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .auth-form p label {
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+    }
+    .auth-form .helptext {
+        display: block;
+        margin-top: 0.5rem;
+        white-space: nowrap;
+    }
+    .auth-form li { white-space: nowrap; }
+</style>
 {% endblock %}
 
 {% block content %}
-<div style="max-width: 400px; margin: 2rem auto; text-align: center;">
-    <h2>회원가입</h2>
+<div style="max-width: 780px; margin: 4rem auto; text-align: center; padding: 0 1rem;">
+    <h2 style="font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.5rem;">회원가입</h2>
+    <p style="color: #9ca3af; margin-bottom: 2rem; font-size: 0.95rem;">건강한 습관을 함께 만들어가요</p>
     <form method="post" class="auth-form">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">가입</button>
     </form>
-    <a href="{% url 'login' %}">이미 계정이 있으신가요?</a>
+    <a href="{% url 'login' %}" style="display: inline-block; margin-top: 1.5rem; color: #6b7280; font-size: 0.9rem;">이미 계정이 있으신가요? <strong style="color: #4353ff;">로그인하기</strong></a>
 </div>
 {% endblock %}

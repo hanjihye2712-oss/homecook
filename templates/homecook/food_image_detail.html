@@ -35,21 +35,21 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <p class="mb-2">
-                                <strong>📅 업로드 날짜:</strong> 
+                                <strong>업로드 날짜:</strong>
                                 {{ food_image.created_at|date:"Y년 m월 d일 H:i" }}
                             </p>
                             <p class="mb-2">
-                                <strong>👤 작성자:</strong> 
+                                <strong>작성자:</strong>
                                 {{ food_image.user.username }}
                             </p>
                         </div>
                         <div class="col-md-6">
                             <p class="mb-2">
-                                <strong>📐 이미지 크기:</strong> 
+                                <strong>이미지 크기:</strong>
                                 <span class="badge bg-info">{{ food_image.image.width }} x {{ food_image.image.height }} px</span>
                             </p>
                             <p class="mb-2">
-                                <strong>💾 파일 크기:</strong> 
+                                <strong>파일 크기:</strong>
                                 <span class="badge bg-secondary">{{ food_image.image.size|filesizeformat }}</span>
                             </p>
                         </div>
@@ -60,10 +60,10 @@
                     <hr class="my-4">
                     <div class="d-flex gap-2">
                         <a href="{% url 'homecook:food_image_update' food_image.pk %}" class="btn btn-warning">
-                            ✏️ 수정하기
+                            수정하기
                         </a>
                         <a href="{% url 'homecook:food_image_delete' food_image.pk %}" class="btn btn-danger">
-                            🗑️ 삭제하기
+                            삭제하기
                         </a>
                     </div>
                     {% endif %}

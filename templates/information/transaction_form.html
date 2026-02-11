@@ -12,9 +12,8 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <!-- 헤더 -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>💰 {% if object %}거래내역 수정{% else %}거래내역 추가{% endif %}</h2>
-                <a href="{% url 'information:transaction_list' %}" class="btn btn-outline-secondary">취소</a>
+            <div class="mb-4">
+                <h2>{% if object %}거래내역 수정{% else %}거래내역 추가{% endif %}</h2>
             </div>
 
             <!-- 폼 카드 -->

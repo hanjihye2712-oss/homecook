@@ -1,0 +1,98 @@
+/* ===== 통합 대시보드 페이지 - Padelthon Style ===== */
+
+/* 이 페이지는 흰색 배경 */
+.page-white {
+    background: #fff !important;
+}
+.page-white .navbar {
+    background: #fff !important;
+}
+.page-white .site-footer {
+    background: #fff !important;
+}
+
+/* 차트 막대 - 컴팩트 버전 */
+.chart-bar-container {
+    height: 18px;
+    background-color: var(--color-bg-muted);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.chart-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    min-width: 2px;
+}
+
+.chart-bar-income {
+    background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+}
+
+.chart-bar-expense {
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+.chart-bar-category {
+    background: linear-gradient(90deg, var(--color-dark) 0%, #374151 100%);
+}
+
+/* 배지 크기 조정 */
+.badge-sm {
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+}
+
+/* 테이블 최적화 */
+.table-sm td, .table-sm th {
+    padding: 0.5rem;
+}
+
+/* 스크롤 영역 스타일 */
+.card-body::-webkit-scrollbar {
+    width: 5px;
+}
+
+.card-body::-webkit-scrollbar-track {
+    background: var(--color-bg-soft);
+}
+
+.card-body::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* 카테고리 범례 색상 */
+.category-legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 6px;
+}
+
+.chart-container {
+    position: relative;
+}
+
+/* 섹션 아이콘 - 라임색 원형 */
+.section-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #bbff00;
+    border-radius: 50%;
+    color: #33691e;
+    flex-shrink: 0;
+}

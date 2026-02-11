@@ -1,0 +1,266 @@
+/* ===== 메인 인덱스 - Padelthon Photo Card Style ===== */
+
+/* ===== 히어로 섹션 ===== */
+.hero-section {
+    background: #f0ebe1;
+    padding: 3rem 1.5rem 3rem;
+    text-align: center;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-script {
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 4.2rem;
+    color: var(--color-text);
+    margin-bottom: 0;
+    line-height: 1.2;
+}
+
+.hero-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 4.5rem;
+    font-weight: 800;
+    color: var(--color-text);
+    letter-spacing: -1.5px;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    max-width: 640px;
+    margin: 0 auto 2.5rem;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.85rem 2rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.hero-btn-primary {
+    background: #c8f547;
+    color: var(--color-text);
+    border: 2px solid #c8f547;
+}
+
+.hero-btn-primary:hover {
+    background: #b8e537;
+    color: var(--color-text);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(200, 245, 71, 0.35);
+}
+
+.hero-btn-outline {
+    background: transparent;
+    color: var(--color-text);
+    border: 2px solid var(--color-text);
+}
+
+.hero-btn-outline:hover {
+    border-color: var(--color-text);
+    color: var(--color-text);
+    transform: translateY(-2px);
+}
+
+/* ===== 카테고리 카드 섹션 ===== */
+.category-section {
+    background: #f0ebe1;
+    padding: 0 0 4rem;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* ===== 포토 카드 ===== */
+.category-card {
+    position: relative;
+    display: block;
+    text-decoration: none;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    transition: var(--transition);
+}
+
+.category-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+/* 배경 이미지 */
+.card-bg-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category-card:hover .card-bg-img {
+    transform: scale(1.08);
+}
+
+/* ===== 라임색 라벨 뱃지 ===== */
+.card-label {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    background: #c8f547;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.5rem 1.3rem;
+    border-radius: 50px;
+    white-space: nowrap;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(200, 245, 71, 0.4);
+    transition: var(--transition);
+}
+
+/* 각 카드별 라벨 회전 변화 */
+.card-walking .card-label {
+    transform: translateX(-50%) rotate(-4deg);
+    top: 20px;
+}
+
+.card-weight .card-label {
+    transform: translateX(-50%) rotate(2deg);
+    top: 28px;
+}
+
+.card-homecook .card-label {
+    transform: translateX(-50%) rotate(-2deg);
+    top: 22px;
+}
+
+.card-healing .card-label {
+    transform: translateX(-50%) rotate(3deg);
+    top: 26px;
+}
+
+.category-card:hover .card-label {
+    transform: translateX(-50%) rotate(0deg) scale(1.05);
+    box-shadow: 0 6px 20px rgba(200, 245, 71, 0.5);
+}
+
+/* ===== 준비중 뱃지 ===== */
+.card-badge-coming {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.35rem 1.2rem;
+    border-radius: 50px;
+    z-index: 2;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    letter-spacing: 0.05em;
+}
+
+/* 준비중 카드 오버레이 */
+.card-walking::after,
+.card-weight::after,
+.card-healing::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    z-index: 1;
+    transition: var(--transition);
+}
+
+.card-walking:hover::after,
+.card-weight:hover::after,
+.card-healing:hover::after {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* 활성 카드 (Home Cook) - 오버레이 없음 */
+.card-homecook .card-label {
+    background: #c8f547;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 992px) {
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 600px;
+    }
+    .hero-script {
+        font-size: 2.8rem;
+    }
+    .hero-title {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding: 4rem 1rem 2.5rem;
+    }
+    .hero-script {
+        font-size: 2.2rem;
+    }
+    .hero-title {
+        font-size: 2.2rem;
+        letter-spacing: -1px;
+    }
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+    .hero-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    .category-section {
+        padding: 0 0 2rem;
+    }
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        padding: 0 1rem;
+    }
+    .card-label {
+        font-size: 0.65rem;
+        padding: 0.4rem 0.9rem;
+    }
+}

@@ -1,6 +1,8 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
 {% block content %}
-<h2>로그아웃 완료</h2>
-<p>성공적으로 로그아웃되었습니다.</p>
-<a href="{% url 'accounts:login' %}">다시 로그인</a>
+<div style="max-width: 420px; margin: 5rem auto; text-align: center; padding: 0 1rem;">
+    <h2 style="font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.75rem;">로그아웃 완료</h2>
+    <p style="color: #6b7280; margin-bottom: 2rem;">성공적으로 로그아웃되었습니다.</p>
+    <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg">다시 로그인</a>
+</div>
 {% endblock %}

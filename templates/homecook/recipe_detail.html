@@ -14,11 +14,11 @@
             </div>
 
             <div class="card shadow-lg">
-                <div class="card-header bg-success text-white">
+                <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">👨‍🍳 {{ recipe.title }}</h3>
+                        <h3 class="mb-0">{{ recipe.title }}</h3>
                         <span class="badge bg-light text-dark">
-                            👁 조회수 {{ recipe.views }}
+                            조회수 {{ recipe.views }}
                         </span>
                     </div>
                 </div>
@@ -32,16 +32,16 @@
                     <div class="row text-muted mb-3">
                         <div class="col-md-6">
                             <p class="mb-1">
-                                <strong>👤 작성자:</strong> {{ recipe.user.username }}
+                                <strong>작성자:</strong> {{ recipe.user.username }}
                             </p>
                         </div>
                         <div class="col-md-6 text-end">
                             <p class="mb-1">
-                                <strong>📅 작성일:</strong> {{ recipe.created_at|date:"Y.m.d H:i" }}
+                                <strong>작성일:</strong> {{ recipe.created_at|date:"Y.m.d H:i" }}
                             </p>
                             {% if recipe.updated_at != recipe.created_at %}
                             <p class="mb-1">
-                                <strong>✏️ 수정일:</strong> {{ recipe.updated_at|date:"Y.m.d H:i" }}
+                                <strong>수정일:</strong> {{ recipe.updated_at|date:"Y.m.d H:i" }}
                             </p>
                             {% endif %}
                         </div>
@@ -49,7 +49,7 @@
 
                     <!-- 글자 수 정보 -->
                     <div class="text-muted mb-3">
-                        <small>📝 글자 수: {{ recipe.content|length }} / 300자</small>
+                        <small>글자 수: {{ recipe.content|length }} / 300자</small>
                     </div>
 
                     <!-- 수정/삭제 버튼 (본인만) -->
@@ -57,10 +57,10 @@
                     <hr class="my-4">
                     <div class="d-flex gap-2">
                         <a href="{% url 'homecook:recipe_update' recipe.pk %}" class="btn btn-warning">
-                            ✏️ 수정하기
+                            수정하기
                         </a>
                         <a href="{% url 'homecook:recipe_delete' recipe.pk %}" class="btn btn-danger">
-                            🗑️ 삭제하기
+                            삭제하기
                         </a>
                     </div>
                     {% endif %}
@@ -69,7 +69,7 @@
 
             <!-- 공개 레시피 안내 -->
             <div class="alert alert-info mt-3">
-                <strong>ℹ️ 공개 레시피:</strong> 이 레시피는 모든 사용자에게 공개됩니다.
+                <strong>공개 레시피:</strong> 이 레시피는 모든 사용자에게 공개됩니다.
             </div>
         </div>
     </div>

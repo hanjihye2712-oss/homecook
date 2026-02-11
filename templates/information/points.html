@@ -11,25 +11,25 @@
 <div class="container mt-4">
     <!-- 헤더 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>💎 포인트 관리</h2>
+        <h2>포인트 관리</h2>
         <a href="{% url 'information:transaction_list' %}" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> 거래내역으로
+            거래내역으로
         </a>
     </div>
 
     <!-- 포인트 잔액 -->
     <div class="row mb-4">
         <div class="col-md-6">
-            <div class="card text-center border-primary">
+            <div class="card text-center">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">현재 포인트</h6>
                     <h2 class="card-title text-primary">{{ points|floatformat:0 }}P</h2>
-                    <p class="text-muted mb-0">챌린지 세트를 완성하면 100P씩 적립됩니다!</p>
+                    <p class="text-muted mb-0">챌린지를 완성하면 100P씩 적립됩니다!</p>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card border-info">
+            <div class="card">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-3 text-muted">포인트 적립 방법</h6>
                     <ul class="mb-0">
@@ -44,8 +44,8 @@
 
     <!-- 서울페이 연동 -->
     <div class="card mb-4">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">💳 서울페이 연동</h5>
+        <div class="card-header">
+            <h5 class="mb-0">서울페이 연동</h5>
         </div>
         <div class="card-body">
             <p class="mb-3">포인트를 서울페이로 전송하여 실제 금액으로 사용하세요!</p>
@@ -68,7 +68,7 @@
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-success w-100">
-                            <i class="bi bi-arrow-right-circle"></i> 서울페이로 전송
+                            서울페이로 전송
                         </button>
                     </div>
                 </div>

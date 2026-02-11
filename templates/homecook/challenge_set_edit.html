@@ -12,21 +12,12 @@
         </a>
     </div>
 
-    <div class="mb-4">
-        <form method="post" action="{% url 'homecook:challenge_set_update_title' challenge_set.pk %}" class="d-flex align-items-center gap-2">
-            {% csrf_token %}
-            <h2 class="mb-0">✏️</h2>
-            <input type="text" name="title" value="{{ challenge_set.title }}" class="form-control form-control-lg fw-bold" style="max-width: 400px;" required>
-            <button type="submit" class="btn btn-outline-primary btn-sm">제목 저장</button>
-        </form>
-    </div>
-
     <div class="row g-4">
         <!-- 음식 이미지 -->
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">📸 음식 이미지</h5>
+                <div class="card-header">
+                    <h5 class="mb-0">음식 이미지</h5>
                 </div>
                 <div class="card-body">
                     {% if challenge_set.food_image %}
@@ -48,8 +39,8 @@
         <!-- 영수증 -->
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">🧾 영수증</h5>
+                <div class="card-header">
+                    <h5 class="mb-0">영수증</h5>
                 </div>
                 <div class="card-body">
                     {% if challenge_set.receipt %}
@@ -70,14 +61,14 @@
         <!-- 레시피 -->
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">👨‍🍳 레시피</h5>
+                <div class="card-header">
+                    <h5 class="mb-0">레시피</h5>
                 </div>
                 <div class="card-body">
                     {% if challenge_set.recipe %}
                         <h6>{{ challenge_set.recipe.title }}</h6>
                         <p class="text-muted">{{ challenge_set.recipe.content_preview }}</p>
-                        <p class="small">👁 {{ challenge_set.recipe.views }} | ❤️ {{ challenge_set.recipe.total_likes }}</p>
+                        <p class="small">조회 {{ challenge_set.recipe.views }} | 좋아요 {{ challenge_set.recipe.total_likes }}</p>
                         <a href="{% url 'homecook:recipe_detail' challenge_set.recipe.pk %}" class="btn btn-sm btn-outline-success">
                             자세히 보기
                         </a>
@@ -94,8 +85,8 @@
         <!-- 기록장 -->
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-warning">
-                    <h5 class="mb-0">📔 기록장</h5>
+                <div class="card-header">
+                    <h5 class="mb-0">기록장</h5>
                 </div>
                 <div class="card-body">
                     {% if challenge_set.journal %}
