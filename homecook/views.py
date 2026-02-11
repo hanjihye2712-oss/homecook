@@ -322,11 +322,6 @@ class HomecookChallengeSetDeleteView(LoginRequiredMixin, UserFilterMixin,
         if hasattr(self.object, 'receipt') and self.object.receipt:
             delete_file_safely(self.object.receipt.image)
 
-        # 포인트 100P 차감
-        profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        profile.points = max(0, profile.points - 100)
-        profile.save(update_fields=['points'])
-
         return super().delete(request, *args, **kwargs)
 
 
