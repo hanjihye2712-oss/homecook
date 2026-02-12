@@ -10,8 +10,8 @@ class FoodImageAdmin(admin.ModelAdmin):
 
 @admin.register(Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'is_processed', 'created_at']
-    list_filter = ['is_processed', 'created_at']
+    list_display = ['id', 'user', 'created_at']
+    list_filter = ['created_at']
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):

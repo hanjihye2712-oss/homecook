@@ -1,63 +1,43 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block title %}Homecook - My Challenge{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/my_challenge.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    
-    <!-- ========================================
-         1. 메시지 표시
-    ======================================== -->
-    {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endfor %}
-    {% endif %}
 
     <!-- ========================================
          2. 헤더
     ======================================== -->
     <div class="text-center mb-4">
-        <h1 class="display-4">🎯 My Challenge</h1>
+        <h1 style="font-weight: 800; letter-spacing: -0.5px;">My Challenge</h1>
         <p class="lead text-muted">{{ user.username }}님의 요리 챌린지</p>
     </div>
 
     <!-- ========================================
-         3. 새 챌린지 세트 생성 버튼
+         3. 검색 & 정렬 + 새 챌린지 세트 생성 버튼
     ======================================== -->
-    <div class="mb-4 text-end">
-        <a href="{% url 'homecook:challenge_set_create' %}" class="btn btn-primary btn-lg">
-            ➕ 새 챌린지 세트 만들기
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <form method="get" class="d-flex align-items-center gap-2 flex-grow-1">
+            <input type="text"
+                   name="search"
+                   class="form-control"
+                   placeholder="제목이나 내용으로 검색..."
+                   value="{{ search_query }}"
+                   style="max-width: 300px;">
+            <select name="sort" class="form-select" style="max-width: 120px;">
+                <option value="latest" {% if sort == 'latest' %}selected{% endif %}>최신순</option>
+                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>오래된순</option>
+            </select>
+            <button type="submit" class="btn" style="background-color: #e5e7eb; color: var(--color-text);">검색</button>
+        </form>
+        <a href="{% url 'homecook:challenge_set_create' %}" class="btn btn-primary btn-lg flex-shrink-0">
+            챌린지 기록하기
         </a>
-    </div>
-
-    <!-- ========================================
-         4. 검색 & 정렬
-    ======================================== -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-8">
-                    <input type="text" 
-                           name="search" 
-                           class="form-control" 
-                           placeholder="🔍 제목이나 내용으로 검색..." 
-                           value="{{ search_query }}">
-                </div>
-                <div class="col-md-2">
-                    <select name="sort" class="form-select">
-                        <option value="latest" {% if sort == 'latest' %}selected{% endif %}>최신순</option>
-                        <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>오래된순</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">검색</button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <!-- ========================================
@@ -71,149 +51,57 @@
     {% endif %}
 
     <!-- ========================================
-         6. 챌린지 세트 리스트
+         6. 챌린지 세트 리스트 (갤러리 스타일)
     ======================================== -->
     {% if challenge_sets %}
-        {% for set in challenge_sets %}
-        <div class="card mb-4 shadow">
-            <!-- 세트 헤더 -->
-            <div class="card-header bg-primary text-white">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h4 class="mb-0">📌 {{ set.title }}</h4>
-                        <small>{{ set.created_at|date:"Y년 m월 d일 H:i" }}</small>
+        <div class="row g-4">
+            {% for set in challenge_sets %}
+            <div class="col-lg-4 col-md-4 col-sm-6 mb-4">
+                <div class="gallery-card">
+                    <!-- 썸네일 이미지 -->
+                    <div class="image-wrapper">
+                        {% if set.food_image %}
+                            <img src="{{ set.food_image.image.url }}"
+                                 alt="{{ set.food_image.title }}"
+                                 class="gallery-img">
+                        {% else %}
+                            <div class="no-image-placeholder">
+                                <span>No Image</span>
+                                <p>이미지 없음</p>
+                            </div>
+                        {% endif %}
                     </div>
-                    <div class="col-md-4 text-end">
-                        <a href="{% url 'homecook:challenge_set_edit' set.pk %}" 
-                           class="btn btn-warning btn-sm">
-                            ✏️ 수정
-                        </a>
-                        <a href="{% url 'homecook:challenge_set_delete' set.pk %}" 
-                           class="btn btn-danger btn-sm">
-                            🗑️ 삭제
-                        </a>
+
+                    <!-- 카드 정보 -->
+                    <div class="gallery-info p-3">
+                        <h6 class="mb-1 text-truncate fw-bold">{{ set.title }}</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted">{{ set.created_at|date:"Y.m.d" }}</small>
+                            <small class="text-muted">
+                                {% if set.recipe %}Views {{ set.recipe.views }}{% endif %}
+                                {% if set.recipe %}Likes {{ set.recipe.total_likes }}{% endif %}
+                            </small>
+                        </div>
+                        <!-- 버튼 -->
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'homecook:challenge_set_edit' set.pk %}"
+                               class="btn btn-warning btn-sm flex-fill">수정</a>
+                            <a href="{% url 'homecook:challenge_set_delete' set.pk %}"
+                               class="btn btn-danger btn-sm flex-fill">삭제</a>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- 세트 내용 (4개 항목) -->
-            <div class="card-body">
-                <div class="row g-3">
-                    
-                    <!-- ========== 음식 이미지 ========== -->
-                    <div class="col-md-3">
-                        <div class="border rounded p-3 h-100">
-                            <h6 class="fw-bold mb-3">📸 음식 이미지</h6>
-                            {% if set.food_image %}
-                                <img src="{{ set.food_image.image.url }}" 
-                                     class="img-fluid rounded mb-2" 
-                                     alt="{{ set.food_image.title }}"
-                                     style="max-height: 150px; width: 100%; object-fit: cover;">
-                                <p class="small mb-0 text-truncate">{{ set.food_image.title|default:"제목 없음" }}</p>
-                                <a href="{% url 'homecook:food_image_detail' set.food_image.pk %}" 
-                                   class="btn btn-sm btn-outline-primary w-100 mt-2">
-                                    자세히 보기
-                                </a>
-                            {% else %}
-                                <div class="text-center text-muted py-4">
-                                    <p class="small mb-0">이미지 없음</p>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- ========== 영수증 ========== -->
-                    <div class="col-md-3">
-                        <div class="border rounded p-3 h-100">
-                            <h6 class="fw-bold mb-3">🧾 영수증</h6>
-                            {% if set.receipt %}
-                                <img src="{{ set.receipt.image.url }}" 
-                                     class="img-fluid rounded mb-2" 
-                                     alt="영수증"
-                                     style="max-height: 150px; width: 100%; object-fit: cover;">
-                                <p class="small mb-0">
-                                    {% if set.receipt.is_processed %}
-                                        <span class="badge bg-success">처리완료</span>
-                                    {% else %}
-                                        <span class="badge bg-warning">처리중</span>
-                                    {% endif %}
-                                </p>
-                                <a href="{% url 'homecook:receipt_detail' set.receipt.pk %}" 
-                                   class="btn btn-sm btn-outline-info w-100 mt-2">
-                                    자세히 보기
-                                </a>
-                            {% else %}
-                                <div class="text-center text-muted py-4">
-                                    <p class="small mb-0">영수증 없음</p>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- ========== 레시피 ========== -->
-                    <div class="col-md-3">
-                        <div class="border rounded p-3 h-100">
-                            <h6 class="fw-bold mb-3">👨‍🍳 레시피</h6>
-                            {% if set.recipe %}
-                                <h6 class="text-truncate">{{ set.recipe.title }}</h6>
-                                <p class="small text-muted mb-2" style="min-height: 40px; overflow: hidden;">
-                                    {{ set.recipe.content_preview }}
-                                </p>
-                                <p class="small mb-0">
-                                    👁 {{ set.recipe.views }} | ❤️ {{ set.recipe.total_likes }}
-                                </p>
-                                <a href="{% url 'homecook:recipe_detail' set.recipe.pk %}" 
-                                   class="btn btn-sm btn-outline-success w-100 mt-2">
-                                    자세히 보기
-                                </a>
-                            {% else %}
-                                <div class="text-center text-muted py-4">
-                                    <p class="small mb-0">레시피 없음</p>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- ========== 기록장 ========== -->
-                    <div class="col-md-3">
-                        <div class="border rounded p-3 h-100">
-                            <h6 class="fw-bold mb-3">📔 기록장</h6>
-                            {% if set.journal %}
-                                <h6 class="text-truncate">{{ set.journal.title }}</h6>
-                                <p class="small text-muted mb-2" style="min-height: 40px; overflow: hidden;">
-                                    {{ set.journal.content_preview }}
-                                </p>
-                                <p class="small mb-0">
-                                    {% if set.journal.visibility == 'public' %}
-                                        <span class="badge bg-success">공개</span>
-                                    {% else %}
-                                        <span class="badge bg-warning">비공개</span>
-                                    {% endif %}
-                                </p>
-                                <a href="{% url 'homecook:journal_detail' set.journal.pk %}" 
-                                   class="btn btn-sm btn-outline-primary w-100 mt-2">
-                                    자세히 보기
-                                </a>
-                            {% else %}
-                                <div class="text-center text-muted py-4">
-                                    <p class="small mb-0">기록 없음</p>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
 
         <!-- ========================================
              7. 페이지네이션
         ======================================== -->
         {% if is_paginated %}
-        <nav aria-label="Page navigation">
+        <nav aria-label="Page navigation" class="mt-4">
             <ul class="pagination justify-content-center">
-                
+
                 <!-- 이전 버튼 -->
                 {% if page_obj.has_previous %}
                 <li class="page-item">
@@ -226,7 +114,7 @@
                     <span class="page-link">← 이전</span>
                 </li>
                 {% endif %}
-                
+
                 <!-- 페이지 번호들 -->
                 {% for num in page_obj.paginator.page_range %}
                     {% if page_obj.number == num %}
@@ -241,7 +129,7 @@
                     </li>
                     {% endif %}
                 {% endfor %}
-                
+
                 <!-- 다음 버튼 -->
                 {% if page_obj.has_next %}
                 <li class="page-item">
@@ -254,7 +142,7 @@
                     <span class="page-link">다음 →</span>
                 </li>
                 {% endif %}
-                
+
             </ul>
         </nav>
         {% endif %}
@@ -265,105 +153,15 @@
         ======================================== -->
         <div class="text-center py-5">
             <div class="mb-4">
-                <i class="display-1">📝</i>
+                <i class="empty-icon"></i>
             </div>
             <h3 class="text-muted mb-4">아직 챌린지 세트가 없습니다</h3>
             <p class="text-muted mb-4">첫 챌린지 세트를 만들어 요리 일상을 기록해보세요!</p>
             <a href="{% url 'homecook:challenge_set_create' %}" class="btn btn-primary btn-lg">
-                첫 챌린지 세트 만들기 →
+                챌린지 기록하기 →
             </a>
         </div>
     {% endif %}
 
 </div>
-{% endblock %}
-
-<!-- ========================================
-     9. 추가 CSS
-======================================== -->
-{% block extra_css %}
-<style>
-    /* 카드 호버 효과 */
-    .card {
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
-    }
-    
-    /* 4개 항목 컨테이너 균등 높이 */
-    .border.rounded {
-        background-color: #f8f9fa;
-        transition: background-color 0.2s;
-    }
-    
-    .border.rounded:hover {
-        background-color: #e9ecef;
-    }
-    
-    /* 이미지 컨테이너 */
-    .img-fluid {
-        transition: transform 0.2s;
-    }
-    
-    .border.rounded:hover .img-fluid {
-        transform: scale(1.05);
-    }
-    
-    /* 버튼 스타일 */
-    .btn-sm {
-        transition: all 0.2s;
-    }
-    
-    .btn-sm:hover {
-        transform: translateY(-2px);
-    }
-    
-    /* 페이지네이션 스타일 */
-    .pagination .page-link {
-        color: #6c757d;
-    }
-    
-    .pagination .page-item.active .page-link {
-        background-color: #007bff;
-        border-color: #007bff;
-        color: white;
-    }
-    
-    /* 검색바 스타일 */
-    .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-    }
-    
-    /* 배지 스타일 */
-    .badge {
-        font-weight: 500;
-        padding: 0.35em 0.65em;
-    }
-    
-    /* 빈 상태 아이콘 */
-    .display-1 {
-        font-size: 6rem;
-        opacity: 0.3;
-    }
-    
-    /* 반응형 디자인 */
-    @media (max-width: 768px) {
-        .col-md-3 {
-            margin-bottom: 1rem;
-        }
-        
-        .card-header .row {
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .card-header .text-end {
-            text-align: left !important;
-        }
-    }
-</style>
 {% endblock %}

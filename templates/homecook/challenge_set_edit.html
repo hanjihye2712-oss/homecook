@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    
+
     <!-- 헤더 -->
     <div class="mb-4">
         <a href="{% url 'homecook:my_challenge' %}" class="btn btn-outline-secondary btn-sm">
@@ -12,14 +12,12 @@
         </a>
     </div>
 
-    <h2 class="mb-4">✏️ {{ challenge_set.title }}</h2>
-
     <div class="row g-4">
         <!-- 음식 이미지 -->
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">📸 음식 이미지</h5>
+                <div class="card-header">
+                    <h5 class="mb-0">음식 이미지</h5>
                 </div>
                 <div class="card-body">
                     {% if challenge_set.food_image %}
@@ -41,19 +39,12 @@
         <!-- 영수증 -->
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">🧾 영수증</h5>
+                <div class="card-header">
+                    <h5 class="mb-0">영수증</h5>
                 </div>
                 <div class="card-body">
                     {% if challenge_set.receipt %}
                         <img src="{{ challenge_set.receipt.image.url }}" class="img-fluid rounded mb-3">
-                        <p>
-                            {% if challenge_set.receipt.is_processed %}
-                                <span class="badge bg-success">처리완료</span>
-                            {% else %}
-                                <span class="badge bg-warning">처리중</span>
-                            {% endif %}
-                        </p>
                         <a href="{% url 'homecook:receipt_detail' challenge_set.receipt.pk %}" class="btn btn-sm btn-outline-info">
                             자세히 보기
                         </a>
@@ -70,14 +61,14 @@
         <!-- 레시피 -->
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">👨‍🍳 레시피</h5>
+                <div class="card-header">
+                    <h5 class="mb-0">레시피</h5>
                 </div>
                 <div class="card-body">
                     {% if challenge_set.recipe %}
                         <h6>{{ challenge_set.recipe.title }}</h6>
                         <p class="text-muted">{{ challenge_set.recipe.content_preview }}</p>
-                        <p class="small">👁 {{ challenge_set.recipe.views }} | ❤️ {{ challenge_set.recipe.total_likes }}</p>
+                        <p class="small">조회 {{ challenge_set.recipe.views }} | 좋아요 {{ challenge_set.recipe.total_likes }}</p>
                         <a href="{% url 'homecook:recipe_detail' challenge_set.recipe.pk %}" class="btn btn-sm btn-outline-success">
                             자세히 보기
                         </a>
@@ -94,221 +85,8 @@
         <!-- 기록장 -->
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-warning">
-                    <h5 class="mb-0">📔 기록장</h5>
-                </div>
-                <div class="card-body">
-                    {% if challenge_set.journal %}
-                        <h6>{{ challenge_set.journal.title }}</h6>
-                        <p class="text-muted">{{ challenge_set.journal.content_preview }}</p>
-                        <p class="small">
-                            {% if challenge_set.journal.visibility == 'public' %}
-                                <span class="badge bg-success">공개</span>
-                            {% else %}
-                                <span class="badge bg-secondary">비공개</span>
-                            {% endif %}
-                        </p>
-                        <a href="{% url 'homecook:journal_detail' challenge_set.journal.pk %}" class="btn btn-sm btn-outline-primary">
-                            자세히 보기
-                        </a>
-                    {% else %}
-                        <p class="text-muted">기록이 없습니다.</p>
-                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#journalModal">
-                            추가하기
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 모달들 -->
-<!-- 음식 이미지 모달 -->
-<div class="modal fade" id="foodImageModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">음식 이미지 추가</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="post" action="{% url 'homecook:add_food_image_to_set' challenge_set.pk %}" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="modal-body">
-                    {{ food_image_form.as_p }}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                    <button type="submit" class="btn btn-primary">추가</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- 영수증 모달 -->
-<div class="modal fade" id="receiptModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">영수증 추가</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="post" action="{% url 'homecook:add_receipt_to_set' challenge_set.pk %}" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="modal-body">
-                    {{ receipt_form.as_p }}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                    <button type="submit" class="btn btn-info">추가</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- 레시피 모달 -->
-<div class="modal fade" id="recipeModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">레시피 추가</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="post" action="{% url 'homecook:add_recipe_to_set' challenge_set.pk %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    {{ recipe_form.as_p }}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                    <button type="submit" class="btn btn-success">추가</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- 기록장 모달 -->
-<div class="modal fade" id="journalModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">기록장 추가</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="post" action="{% url 'homecook:add_journal_to_set' challenge_set.pk %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    {{ journal_form.as_p }}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                    <button type="submit" class="btn btn-warning">추가</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endblock %}{% extends 'base.html' %}
-
-{% block title %}{{ challenge_set.title }} 편집 - Homecook{% endblock %}
-
-{% block content %}
-<div class="container mt-4">
-    
-    <!-- 헤더 -->
-    <div class="mb-4">
-        <a href="{% url 'homecook:my_challenge' %}" class="btn btn-outline-secondary btn-sm">
-            ← My Challenge로 돌아가기
-        </a>
-    </div>
-
-    <h2 class="mb-4">✏️ {{ challenge_set.title }}</h2>
-
-    <div class="row g-4">
-        <!-- 음식 이미지 -->
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">📸 음식 이미지</h5>
-                </div>
-                <div class="card-body">
-                    {% if challenge_set.food_image %}
-                        <img src="{{ challenge_set.food_image.image.url }}" class="img-fluid rounded mb-3">
-                        <p><strong>제목:</strong> {{ challenge_set.food_image.title|default:"제목 없음" }}</p>
-                        <a href="{% url 'homecook:food_image_detail' challenge_set.food_image.pk %}" class="btn btn-sm btn-outline-primary">
-                            자세히 보기
-                        </a>
-                    {% else %}
-                        <p class="text-muted">음식 이미지가 없습니다.</p>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#foodImageModal">
-                            추가하기
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- 영수증 -->
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">🧾 영수증</h5>
-                </div>
-                <div class="card-body">
-                    {% if challenge_set.receipt %}
-                        <img src="{{ challenge_set.receipt.image.url }}" class="img-fluid rounded mb-3">
-                        <p>
-                            {% if challenge_set.receipt.is_processed %}
-                                <span class="badge bg-success">처리완료</span>
-                            {% else %}
-                                <span class="badge bg-warning">처리중</span>
-                            {% endif %}
-                        </p>
-                        <a href="{% url 'homecook:receipt_detail' challenge_set.receipt.pk %}" class="btn btn-sm btn-outline-info">
-                            자세히 보기
-                        </a>
-                    {% else %}
-                        <p class="text-muted">영수증이 없습니다.</p>
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#receiptModal">
-                            추가하기
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- 레시피 -->
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">👨‍🍳 레시피</h5>
-                </div>
-                <div class="card-body">
-                    {% if challenge_set.recipe %}
-                        <h6>{{ challenge_set.recipe.title }}</h6>
-                        <p class="text-muted">{{ challenge_set.recipe.content_preview }}</p>
-                        <p class="small">👁 {{ challenge_set.recipe.views }} | ❤️ {{ challenge_set.recipe.total_likes }}</p>
-                        <a href="{% url 'homecook:recipe_detail' challenge_set.recipe.pk %}" class="btn btn-sm btn-outline-success">
-                            자세히 보기
-                        </a>
-                    {% else %}
-                        <p class="text-muted">레시피가 없습니다.</p>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#recipeModal">
-                            추가하기
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- 기록장 -->
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-warning">
-                    <h5 class="mb-0">📔 기록장</h5>
+                <div class="card-header">
+                    <h5 class="mb-0">기록장</h5>
                 </div>
                 <div class="card-body">
                     {% if challenge_set.journal %}

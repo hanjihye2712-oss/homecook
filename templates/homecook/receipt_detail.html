@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block title %}영수증 #{{ receipt.id }} - Homecook{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/receipt_detail.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -14,42 +19,22 @@
             </div>
 
             <div class="card shadow-lg">
-                <div class="card-header bg-info text-white">
-                    <h3 class="mb-0">🧾 영수증 #{{ receipt.id }}</h3>
+                <div class="card-header">
+                    <h3 class="mb-0">영수증 #{{ receipt.id }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <!-- 영수증 이미지 -->
                         <div class="col-md-6">
-                            <h5 class="mb-3">📷 영수증 이미지</h5>
+                            <h5 class="mb-3">영수증 이미지</h5>
                             <img src="{{ receipt.image.url }}" 
                                  class="img-fluid rounded shadow-sm mb-3" 
                                  alt="영수증">
                             
                             <div class="mb-3">
-                                <strong>📅 업로드:</strong> {{ receipt.created_at|date:"Y.m.d H:i" }}<br>
-                                <strong>👤 작성자:</strong> {{ receipt.user.username }}<br>
-                                <strong>📊 처리 상태:</strong> 
-                                {% if receipt.is_processed %}
-                                    <span class="badge bg-success">처리완료</span>
-                                {% else %}
-                                    <span class="badge bg-warning">처리중</span>
-                                {% endif %}
+                                <strong>업로드:</strong> {{ receipt.created_at|date:"Y.m.d H:i" }}<br>
+                                <strong>작성자:</strong> {{ receipt.user.username }}
                             </div>
-                        </div>
-
-                        <!-- OCR 텍스트 -->
-                        <div class="col-md-6">
-                            <h5 class="mb-3">📝 추출된 텍스트</h5>
-                            {% if receipt.ocr_text %}
-                                <div class="ocr-text-full p-4 bg-light rounded">
-                                    <pre style="white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.9rem;">{{ receipt.ocr_text }}</pre>
-                                </div>
-                            {% else %}
-                                <div class="alert alert-warning">
-                                    텍스트가 아직 추출되지 않았습니다.
-                                </div>
-                            {% endif %}
                         </div>
                     </div>
 
@@ -58,10 +43,10 @@
                     <hr class="my-4">
                     <div class="d-flex gap-2">
                         <a href="{% url 'homecook:receipt_update' receipt.pk %}" class="btn btn-warning">
-                            ✏️ 수정하기
+                            수정하기
                         </a>
                         <a href="{% url 'homecook:receipt_delete' receipt.pk %}" class="btn btn-danger">
-                            🗑️ 삭제하기
+                            삭제하기
                         </a>
                     </div>
                     {% endif %}
@@ -70,14 +55,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .ocr-text-full {
-        max-height: 500px;
-        overflow-y: auto;
-        border: 1px solid #dee2e6;
-    }
-</style>
 {% endblock %}

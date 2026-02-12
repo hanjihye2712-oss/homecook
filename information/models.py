@@ -10,30 +10,40 @@ class Transaction(models.Model):
     # 거래 유형
     DEPOSIT = 'deposit'
     WITHDRAWAL = 'withdrawal'
-    TRANSFER = 'transfer'
-    
+    SEOULPAY = 'seoulpay'
+
     TRANSACTION_TYPE_CHOICES = [
         (DEPOSIT, '입금'),
         (WITHDRAWAL, '출금'),
-        (TRANSFER, '이체'),
+        (SEOULPAY, '서울페이'),
     ]
-    
+
     # 카테고리
+    SALARY = 'salary'
+    ALLOWANCE = 'allowance'
     FOOD = 'food'
     TRANSPORT = 'transport'
     SHOPPING = 'shopping'
     UTILITY = 'utility'
     ENTERTAINMENT = 'entertainment'
-    INCOME = 'income'
+    HEALTH_POINT = 'health_point'
+    RENT = 'rent'
+    INTEREST = 'interest'
+    MAINTENANCE = 'maintenance'
     OTHER = 'other'
-    
+
     CATEGORY_CHOICES = [
+        (SALARY, '월급'),
+        (ALLOWANCE, '용돈'),
         (FOOD, '식비'),
         (TRANSPORT, '교통비'),
         (SHOPPING, '쇼핑'),
         (UTILITY, '공과금'),
         (ENTERTAINMENT, '여가/문화'),
-        (INCOME, '수입'),
+        (HEALTH_POINT, '건강 포인트'),
+        (RENT, '월세'),
+        (INTEREST, '이자'),
+        (MAINTENANCE, '관리비'),
         (OTHER, '기타'),
     ]
     
@@ -41,7 +51,7 @@ class Transaction(models.Model):
     transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPE_CHOICES, verbose_name='거래 유형')
     amount = models.DecimalField(max_digits=12, decimal_places=0, validators=[MinValueValidator(0)], verbose_name='금액')
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, verbose_name='카테고리')
-    description = models.CharField(max_length=200, verbose_name='내용', help_text='거래 내용을 입력하세요 (최대 200자)')
+    description = models.CharField(max_length=200, blank=True, default='', verbose_name='내용', help_text='거래 내용을 입력하세요 (선택사항, 최대 200자)')
     balance_after = models.DecimalField(max_digits=12, decimal_places=0, blank=True, null=True, verbose_name='거래 후 잔액')
     transaction_date = models.DateTimeField(verbose_name='거래 일시')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='등록 일시')
@@ -76,8 +86,8 @@ class Transaction(models.Model):
     
     def is_income(self):
         """수입 거래인지 확인"""
-        return self.transaction_type == self.DEPOSIT or self.category == self.INCOME
-    
+        return self.transaction_type == self.DEPOSIT
+
     def is_expense(self):
         """지출 거래인지 확인"""
-        return self.transaction_type in [self.WITHDRAWAL, self.TRANSFER]
+        return self.transaction_type in [self.WITHDRAWAL, self.SEOULPAY] and self.category != self.HEALTH_POINT

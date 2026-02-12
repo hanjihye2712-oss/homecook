@@ -1,0 +1,137 @@
+homecook/
+├── manage.py
+├── .env
+├── .gitignore
+├── .python-version
+├── pyproject.toml
+├── requirements.txt
+├── uv.lock
+├── db.sqlite3
+├── PROJECT_DOCUMENT.md
+├── README.md
+│
+├── mysite/                          # Django 프로젝트 설정
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+│
+├── accounts/                        # 회원 관리 앱
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   ├── views.py
+│   └── migrations/
+│       ├── __init__.py
+│       └── 0001_initial.py
+│
+├── homecook/                        # 핵심 기능 앱
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   ├── views.py
+│   └── migrations/
+│       ├── __init__.py
+│       ├── 0001_initial.py
+│       ├── 0002_recipe_likes.py
+│       ├── 0003_challengeset_foodimage_challenge_set_and_more.py
+│       ├── 0004_alter_journal_options.py
+│       └── 0005_remove_receipt_is_processed_remove_receipt_ocr_text.py
+│
+├── information/                     # 거래/대시보드 앱
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   ├── views.py
+│   └── migrations/
+│       ├── __init__.py
+│       ├── 0001_initial.py
+│       ├── 0002_alter_transaction_category_and_more.py
+│       ├── 0003_alter_transaction_category_and_more.py
+│       ├── 0004_alter_transaction_transaction_type.py
+│       ├── 0005_alter_transaction_description.py
+│       └── 0006_alter_transaction_category.py
+│
+├── templates/
+│   ├── base.html
+│   ├── main_index.html
+│   ├── accounts/
+│   │   └── signup.html
+│   ├── registration/
+│   │   ├── login.html
+│   │   └── logged_out.html
+│   ├── homecook/
+│   │   ├── landing.html
+│   │   ├── food_image_form.html
+│   │   ├── food_image_detail.html
+│   │   ├── food_image_confirm_delete.html
+│   │   ├── receipt_form.html
+│   │   ├── receipt_detail.html
+│   │   ├── receipt_confirm_delete.html
+│   │   ├── recipe_form.html
+│   │   ├── recipe_detail.html
+│   │   ├── recipe_confirm_delete.html
+│   │   ├── journal_form.html
+│   │   ├── journal_detail.html
+│   │   ├── challenge_set_form.html
+│   │   ├── challenge_set_create_all.html
+│   │   ├── challenge_set_edit.html
+│   │   ├── challenge_set_confirm_delete.html
+│   │   ├── my_challenge.html
+│   │   ├── walking.html
+│   │   ├── weight.html
+│   │   └── healing.html
+│   └── information/
+│       ├── dashboard.html
+│       ├── integrated_dashboard.html
+│       ├── points.html
+│       ├── transaction_list.html
+│       ├── transaction_detail.html
+│       ├── transaction_form.html
+│       └── transaction_confirm_delete.html
+│
+├── static/
+│   └── homecook/
+│       ├── css/
+│       │   ├── accounts.css
+│       │   ├── base.css
+│       │   ├── dashboard.css
+│       │   ├── detail.css
+│       │   ├── index.css
+│       │   ├── integrated_dashboard.css
+│       │   ├── landing.css
+│       │   ├── main_index.css
+│       │   ├── my_challenge.css
+│       │   ├── placeholder.css
+│       │   ├── points.css
+│       │   ├── receipt_detail.css
+│       │   ├── transaction_delete.css
+│       │   ├── transaction_detail.css
+│       │   ├── transaction_form.css
+│       │   └── transaction_list.css
+│       └── img/
+│           ├── background.jpg
+│           ├── healing.jpg
+│           ├── homecook.jpg
+│           ├── walking.jpg
+│           └── weight.jpg
+│
+├── media/                           # 사용자 업로드 파일
+│   ├── food_images/
+│   │   └── 2026/02/...
+│   └── receipts/
+│       └── 2026/02/...
+│
+└── staticfiles/                     # collectstatic 출력

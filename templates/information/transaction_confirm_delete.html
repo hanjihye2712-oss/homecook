@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block title %}거래내역 삭제{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/transaction_delete.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -8,13 +13,13 @@
         <div class="col-md-6">
             <!-- 헤더 -->
             <div class="mb-4 text-center">
-                <h2>🗑️ 거래내역 삭제</h2>
+                <h2>거래내역 삭제</h2>
             </div>
 
             <!-- 삭제 확인 카드 -->
-            <div class="card border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">⚠️ 삭제 확인</h5>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">삭제 확인</h5>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-warning">
@@ -76,22 +81,10 @@
             <!-- 안내 메시지 -->
             <div class="alert alert-info mt-4 text-center">
                 <small>
-                    <i class="bi bi-info-circle"></i> 
-                    취소하려면 '취소' 버튼을 클릭하세요.
+취소하려면 '취소' 버튼을 클릭하세요.
                 </small>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .card-header {
-        font-weight: 600;
-    }
-    .border-danger {
-        border-width: 2px !important;
-    }
-</style>
 {% endblock %}

@@ -4,15 +4,22 @@
 
 {% block title %}통합 대시보드{% endblock %}
 
+{% block body_class %}page-white{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/integrated_dashboard.css' %}" />
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
     <!-- 페이지 헤더 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2">
-            <i class="bi bi-grid-3x3-gap-fill"></i> 통합 대시보드
-        </h1>
+        <h3 class="d-flex align-items-center gap-2">
+            <span class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
+            통합 대시보드
+        </h3>
         <a href="{% url 'information:transaction_create' %}" class="btn btn-primary btn-lg">
-            <i class="bi bi-plus-circle"></i> 거래 등록
+            거래 등록
         </a>
     </div>
 
@@ -23,7 +30,7 @@
             <!-- 기간 선택 -->
             <div class="col-lg-3">
                 <div class="card h-100">
-                    <div class="card-body">
+                    <div class="card-body py-2">
                         <form method="get" id="periodForm">
                             <!-- 기존 필터 유지 -->
                             {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
@@ -33,7 +40,7 @@
                             {% if end_date %}<input type="hidden" name="end_date" value="{{ end_date }}">{% endif %}
 
                             <label for="period" class="form-label fw-bold">
-                                <i class="bi bi-calendar-range"></i> 조회 기간
+                                조회 기간
                             </label>
                             <select name="period" id="period" class="form-select" onchange="document.getElementById('periodForm').submit()">
                                 {% for option in period_options %}
@@ -52,25 +59,31 @@
 
             <!-- 요약 카드 3개 -->
             <div class="col-lg-3">
-                <div class="card text-white bg-primary h-100">
-                    <div class="card-body">
-                        <h6 class="card-title opacity-75">총 수입</h6>
+                <div class="card h-100 summary-card-income">
+                    <div class="card-header">
+                        <h6 class="mb-0 fw-bold">총 수입</h6>
+                    </div>
+                    <div class="card-body py-3">
                         <h3 class="mb-0 fw-bold">{{ total_income|floatformat:0|intcomma|default:"0" }}원</h3>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3">
-                <div class="card text-white bg-danger h-100">
-                    <div class="card-body">
-                        <h6 class="card-title opacity-75">총 지출</h6>
+                <div class="card h-100 summary-card-expense">
+                    <div class="card-header">
+                        <h6 class="mb-0 fw-bold">총 지출</h6>
+                    </div>
+                    <div class="card-body py-3">
                         <h3 class="mb-0 fw-bold">{{ total_expense|floatformat:0|intcomma|default:"0" }}원</h3>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3">
-                <div class="card text-white {% if net_balance >= 0 %}bg-success{% else %}bg-warning{% endif %} h-100">
-                    <div class="card-body">
-                        <h6 class="card-title opacity-75">순 수지</h6>
+                <div class="card h-100 {% if net_balance >= 0 %}summary-card-balance-positive{% else %}summary-card-balance-negative{% endif %}">
+                    <div class="card-header">
+                        <h6 class="mb-0 fw-bold">총 잔액</h6>
+                    </div>
+                    <div class="card-body py-3">
                         <h3 class="mb-0 fw-bold">
                             {% if net_balance >= 0 %}+{% endif %}{{ net_balance|floatformat:0|intcomma|default:"0" }}원
                         </h3>
@@ -86,7 +99,7 @@
                 <div class="card">
                     <div class="card-header bg-white">
                         <h5 class="mb-0">
-                            <i class="bi bi-pie-chart-fill"></i> 카테고리별 지출
+                            카테고리별 지출
                         </h5>
                     </div>
                     <div class="card-body">
@@ -120,7 +133,7 @@
                 <div class="card">
                     <div class="card-header bg-white">
                         <h5 class="mb-0">
-                            <i class="bi bi-calendar3"></i> 월별 수입/지출
+                            월별 수입/지출
                         </h5>
                     </div>
                     <div class="card-body">
@@ -140,11 +153,68 @@
     <!-- 구분선 -->
     <hr class="my-5">
 
+    <!-- ========== 포인트 섹션 ========== -->
+    <section class="points-section mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 id="points-section" class="d-flex align-items-center gap-2">
+                <span class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 0 1 0 4H8"/><path d="M12 18V6"/></svg></span>
+                포인트 관리
+            </h3>
+        </div>
+
+        <!-- 포인트 잔액 & 서울페이 연동 -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card text-center border-primary h-100">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h6 class="card-subtitle mb-2 text-muted">현재 포인트</h6>
+                        <h2 class="card-title text-primary">{{ points|floatformat:0 }}P</h2>
+                        <p class="text-muted mb-0">챌린지를 완성하면 100P씩 적립됩니다!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">서울페이 연동</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">건강 포인트를 서울페이로 전송하면 다양한 가맹점에서 사용할수 있습니다.</p>
+                        <form method="post" action="{% url 'information:transfer_to_seoulpay' %}" onsubmit="return confirmTransfer()">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="amount"
+                                    name="amount"
+                                    min="1"
+                                    max="{{ points }}"
+                                    placeholder="전송할 포인트"
+                                    required
+                                >
+                                <button type="submit" class="btn btn-secondary">
+                                    전송
+                                </button>
+                            </div>
+                            <small class="text-muted">사용 가능: {{ points|floatformat:0 }}P</small>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- 구분선 -->
+    <hr class="my-5">
+
     <!-- ========== 거래내역 섹션 ========== -->
     <section class="transactions-section">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3>
-                <i class="bi bi-list-ul"></i> 최근 거래내역
+            <h3 class="d-flex align-items-center gap-2">
+                <span class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+                최근 거래내역
             </h3>
         </div>
 
@@ -190,7 +260,7 @@
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-secondary btn-sm w-100">
-                            <i class="bi bi-funnel"></i> 필터 적용
+                            필터 적용
                         </button>
                     </div>
                 </form>
@@ -204,7 +274,7 @@
                 <table class="table table-hover table-sm mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>날짜</th>
+                            <th class="text-center">날짜</th>
                             <th>유형</th>
                             <th>카테고리</th>
                             <th>내용</th>
@@ -215,9 +285,9 @@
                     <tbody>
                         {% for transaction in transactions %}
                         <tr>
-                            <td class="small">{{ transaction.transaction_date|date:"Y/m/d H:i" }}</td>
+                            <td class="small text-center">{{ transaction.transaction_date|date:"Y/m/d H:i" }}</td>
                             <td>
-                                <span class="badge badge-sm {% if transaction.transaction_type == 'deposit' %}bg-success{% elif transaction.transaction_type == 'withdrawal' %}bg-danger{% else %}bg-info{% endif %}">
+                                <span class="badge badge-sm {% if transaction.transaction_type == 'deposit' %}bg-success{% elif transaction.transaction_type == 'withdrawal' %}bg-danger{% elif transaction.transaction_type == 'seoulpay' %}bg-primary{% else %}bg-info{% endif %}">
                                     {{ transaction.get_transaction_type_display }}
                                 </span>
                             </td>
@@ -279,7 +349,6 @@
 
         {% else %}
         <div class="alert alert-info text-center">
-            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
             <h5 class="mt-3">거래내역이 없습니다</h5>
             <p class="mb-3">첫 거래를 등록해보세요!</p>
             <a href="{% url 'information:transaction_create' %}" class="btn btn-primary">거래 등록하기</a>
@@ -287,90 +356,6 @@
         {% endif %}
     </section>
 </div>
-
-<style>
-/* 차트 막대 - 컴팩트 버전 */
-.chart-bar-container {
-    height: 18px;
-    background-color: #f0f0f0;
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-.chart-bar {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 0.3s ease;
-    min-width: 2px;
-}
-
-.chart-bar-income {
-    background: linear-gradient(90deg, #0d6efd 0%, #0a58ca 100%);
-}
-
-.chart-bar-expense {
-    background: linear-gradient(90deg, #dc3545 0%, #b02a37 100%);
-}
-
-.chart-bar-category {
-    background: linear-gradient(90deg, #6610f2 0%, #520dc2 100%);
-}
-
-/* 배지 크기 조정 */
-.badge-sm {
-    font-size: 0.75rem;
-    padding: 0.25em 0.5em;
-}
-
-/* 테이블 최적화 */
-.table-sm td, .table-sm th {
-    padding: 0.5rem;
-}
-
-/* 스크롤 영역 스타일 */
-.card-body::-webkit-scrollbar {
-    width: 6px;
-}
-
-.card-body::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.card-body::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-}
-
-/* 카드 호버 */
-.card {
-    transition: box-shadow 0.2s;
-}
-
-.card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* 반응형 */
-@media (max-width: 768px) {
-    .container-fluid {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }
-}
-
-/* 카테고리 범례 색상 */
-.category-legend-color {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    margin-right: 6px;
-}
-
-.chart-container {
-    position: relative;
-}
-</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -534,5 +519,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 {% endif %}
+
+// 서울페이 전송 확인
+function confirmTransfer() {
+    const amount = document.getElementById('amount').value;
+    if (!amount || amount <= 0) {
+        alert('올바른 금액을 입력해주세요.');
+        return false;
+    }
+    return confirm(`${amount}P를 서울페이로 전송하시겠습니까?\n\n전송 후에는 취소할 수 없습니다.`);
+}
 </script>
 {% endblock %}

@@ -13,10 +13,10 @@
                 </a>
             </div>
 
-            <div class="card shadow-lg {% if journal.visibility == 'private' %}border-warning{% endif %}">
-                <div class="card-header {% if journal.visibility == 'public' %}bg-primary{% else %}bg-warning{% endif %} text-white">
+            <div class="card shadow-lg">
+                <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">📔 {{ journal.title }}</h3>
+                        <h3 class="mb-0">{{ journal.title }}</h3>
                         {% if journal.visibility == 'public' %}
                             <span class="badge bg-light text-dark">공개</span>
                         {% else %}
@@ -34,16 +34,16 @@
                     <div class="row text-muted mb-3">
                         <div class="col-md-6">
                             <p class="mb-1">
-                                <strong>👤 작성자:</strong> {{ journal.user.username }}
+                                <strong>작성자:</strong> {{ journal.user.username }}
                             </p>
                         </div>
                         <div class="col-md-6 text-end">
                             <p class="mb-1">
-                                <strong>📅 작성일:</strong> {{ journal.created_at|date:"Y.m.d H:i" }}
+                                <strong>작성일:</strong> {{ journal.created_at|date:"Y.m.d H:i" }}
                             </p>
                             {% if journal.updated_at != journal.created_at %}
                             <p class="mb-1">
-                                <strong>✏️ 수정일:</strong> {{ journal.updated_at|date:"Y.m.d H:i" }}
+                                <strong>수정일:</strong> {{ journal.updated_at|date:"Y.m.d H:i" }}
                             </p>
                             {% endif %}
                         </div>
@@ -51,7 +51,7 @@
 
                     <!-- 글자 수 정보 -->
                     <div class="text-muted mb-3">
-                        <small>📝 글자 수: {{ journal.content|length }} / 200자</small>
+                        <small>글자 수: {{ journal.content|length }} / 200자</small>
                     </div>
 
                     <!-- 수정/삭제 버튼 (본인만) -->
@@ -59,10 +59,10 @@
                     <hr class="my-4">
                     <div class="d-flex gap-2">
                         <a href="{% url 'homecook:journal_update' journal.pk %}" class="btn btn-warning">
-                            ✏️ 수정하기
+                            수정하기
                         </a>
                         <a href="{% url 'homecook:journal_delete' journal.pk %}" class="btn btn-danger">
-                            🗑️ 삭제하기
+                            삭제하기
                         </a>
                     </div>
                     {% endif %}
@@ -72,11 +72,11 @@
             <!-- 공개/비공개 안내 -->
             {% if journal.visibility == 'public' %}
             <div class="alert alert-info mt-3">
-                <strong>ℹ️ 공개 기록:</strong> 이 기록은 모든 사용자에게 공개됩니다.
+                <strong>공개 기록:</strong> 이 기록은 모든 사용자에게 공개됩니다.
             </div>
             {% else %}
             <div class="alert alert-warning mt-3">
-                <strong>🔒 비공개 기록:</strong> 이 기록은 본인만 볼 수 있습니다.
+                <strong>비공개 기록:</strong> 이 기록은 본인만 볼 수 있습니다.
             </div>
             {% endif %}
         </div>

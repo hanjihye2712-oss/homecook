@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block title %}거래내역 상세{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/transaction_detail.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -8,13 +13,13 @@
         <div class="col-md-8">
             <!-- 헤더 -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>💰 거래내역 상세</h2>
+                <h2>거래내역 상세</h2>
                 <a href="{% url 'information:transaction_list' %}" class="btn btn-outline-secondary">목록으로</a>
             </div>
 
             <!-- 거래내역 카드 -->
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header">
                     <h5 class="mb-0">{{ transaction.description }}</h5>
                 </div>
                 <div class="card-body">
@@ -98,15 +103,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    hr {
-        margin: 1rem 0;
-    }
-</style>
 {% endblock %}

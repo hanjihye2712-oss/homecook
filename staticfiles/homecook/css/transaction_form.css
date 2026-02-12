@@ -1,0 +1,11 @@
+/* ===== 거래내역 등록/수정 폼 - Padelthon Style ===== */
+.form-label.required::after {
+    content: " *";
+    color: #ef4444;
+    font-weight: 600;
+}
+
+#transactionForm input[type="number"]::-webkit-inner-spin-button,
+#transactionForm input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+}

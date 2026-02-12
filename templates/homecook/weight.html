@@ -2,46 +2,21 @@
 
 {% block title %}오늘의 Weight{% endblock %}
 
-{% block content %}
-<style>
-    .page-hero {
-        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-        padding: 4rem 0;
-        text-align: center;
-        color: white;
-    }
-    .page-hero .emoji { font-size: 4rem; margin-bottom: 1rem; }
-    .page-hero h1 { font-size: 2.5rem; font-weight: 700; }
-    .page-hero p { font-size: 1.1rem; opacity: 0.85; margin-top: 0.5rem; }
-    .coming-soon {
-        text-align: center;
-        padding: 4rem 1rem;
-        color: #636e72;
-    }
-    .coming-soon h2 { font-size: 1.5rem; margin-bottom: 1rem; }
-    .back-btn {
-        display: inline-block;
-        margin-top: 1.5rem;
-        padding: 0.7rem 2rem;
-        background: #6c5ce7;
-        color: white;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: background 0.3s;
-    }
-    .back-btn:hover { background: #5a4bd1; color: white; }
-</style>
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/placeholder.css' %}" />
+{% endblock %}
 
-<section class="page-hero">
-    <div class="emoji">🏋️</div>
+{% block content %}
+
+<section class="page-hero hero-weight">
     <h1>오늘의 Weight</h1>
     <p>체중 관리로 건강한 몸을 만드세요</p>
 </section>
 
 <section class="coming-soon">
     <h2>준비 중입니다</h2>
-    <p>체중 관리 기능이 곧 오픈됩니다!</p>
-    <a href="{% url 'homecook:main_index' %}" class="back-btn">메인으로 돌아가기</a>
+    <p>체중 관리 기능이 곧 오픈됩니다.</p>
+    <a href="{% url 'homecook:main_index' %}" class="back-btn btn-weight">메인으로 돌아가기</a>
 </section>
 {% endblock %}

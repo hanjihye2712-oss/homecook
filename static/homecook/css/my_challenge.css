@@ -1,0 +1,172 @@
+/* ===== My Challenge 페이지 - Padelthon Style ===== */
+.gallery-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: var(--transition);
+    cursor: pointer;
+    height: 100%;
+}
+
+.gallery-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: transparent;
+}
+
+.image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%;
+    overflow: hidden;
+    background: var(--color-bg-muted);
+    flex-shrink: 0;
+}
+
+.gallery-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gallery-card:hover .gallery-img {
+    transform: scale(1.06);
+}
+
+/* 이미지 없을 때 플레이스홀더 */
+.no-image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-muted);
+    color: var(--color-text-muted);
+}
+
+.no-image-placeholder span {
+    font-size: 2.5rem;
+    opacity: 0.5;
+}
+
+.no-image-placeholder p {
+    margin: 0.5rem 0 0;
+    font-size: 0.85rem;
+}
+
+/* 오버레이 */
+.image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+    padding: 2rem 1rem 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.gallery-card:hover .image-overlay {
+    opacity: 1;
+}
+
+.overlay-icons {
+    display: flex;
+    gap: 10px;
+    font-size: 1.1rem;
+}
+
+.overlay-icons span {
+    color: white;
+}
+
+/* 카드 하단 정보 */
+.gallery-info {
+    background: #fff;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.gallery-info h6 {
+    color: var(--color-text);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.item-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.item-badges .badge {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.3em 0.7em;
+}
+
+.gallery-info .d-flex.gap-2 {
+    margin-top: auto;
+}
+
+/* 검색 카드 */
+.search-card {
+    border: 1.5px solid var(--color-border) !important;
+    border-radius: var(--radius-lg) !important;
+    transition: none !important;
+}
+
+.search-card:hover {
+    transform: none !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+/* 페이지네이션 */
+.pagination .page-link {
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    margin: 0 2px;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.pagination .page-link:hover {
+    background: var(--color-bg-muted);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--color-dark);
+    border-color: var(--color-dark);
+    color: white;
+}
+
+/* 빈 상태 아이콘 */
+.empty-icon {
+    font-size: 5rem;
+    opacity: 0.2;
+    font-style: normal;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .gallery-info .d-flex.gap-2 {
+        flex-direction: column;
+    }
+}
