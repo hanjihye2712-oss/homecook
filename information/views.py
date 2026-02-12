@@ -2,15 +2,15 @@ from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.db.models import Sum, Q, Count, Avg
+from django.db.models import Sum, Q, Count, Avg, F
 from django.db.models.functions import TruncMonth, TruncDate
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import timedelta, datetime
 from decimal import Decimal
 from collections import defaultdict
-from .models import Transaction
-from .forms import TransactionForm
+from .models import Transaction, Account
+from .forms import TransactionForm, AccountForm
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -114,6 +114,44 @@ def validate_period_parameter(period_str, min_val=1, max_val=24, default=6):
         return default
 
 
+def _apply_transaction_to_account(transaction):
+    """거래를 계좌 잔액에 반영 (수입: +, 지출: -)
+    F() 표현식으로 DB에서 직접 원자적 업데이트
+
+    Args:
+        transaction: Transaction 인스턴스
+    """
+    if not transaction.account_id:
+        return
+    if transaction.is_income():
+        Account.objects.filter(pk=transaction.account_id).update(
+            balance=F('balance') + transaction.amount
+        )
+    else:
+        Account.objects.filter(pk=transaction.account_id).update(
+            balance=F('balance') - transaction.amount
+        )
+
+
+def _reverse_transaction_from_account(transaction):
+    """거래를 계좌 잔액에서 되돌림 (수입: -, 지출: +)
+    F() 표현식으로 DB에서 직접 원자적 업데이트
+
+    Args:
+        transaction: Transaction 인스턴스
+    """
+    if not transaction.account_id:
+        return
+    if transaction.is_income():
+        Account.objects.filter(pk=transaction.account_id).update(
+            balance=F('balance') - transaction.amount
+        )
+    else:
+        Account.objects.filter(pk=transaction.account_id).update(
+            balance=F('balance') + transaction.amount
+        )
+
+
 # ============= CONSTANTS ============= #
 LOGIN_URL = '/accounts/login/'
 SUCCESS_URL = reverse_lazy('information:integrated_dashboard')
@@ -123,6 +161,13 @@ MSG_CREATE_SUCCESS = '{type} 거래내역이 등록되었습니다! (금액: {am
 MSG_UPDATE_SUCCESS = '거래내역이 성공적으로 수정되었습니다! ✏️'
 MSG_DELETE_SUCCESS = '거래내역이 성공적으로 삭제되었습니다! 🗑️'
 MSG_FORM_ERROR = '거래내역 {action}에 실패했습니다. 입력 내용을 확인해주세요.'
+
+# 계좌 관련 상수
+ACCOUNT_SUCCESS_URL = reverse_lazy('information:account_list')
+MSG_ACCOUNT_CREATE_SUCCESS = '계좌가 등록되었습니다! ({bank} {number}) 🏦'
+MSG_ACCOUNT_UPDATE_SUCCESS = '계좌 정보가 수정되었습니다! ✏️'
+MSG_ACCOUNT_DELETE_SUCCESS = '계좌가 삭제되었습니다! 🗑️'
+MSG_ACCOUNT_FORM_ERROR = '계좌 {action}에 실패했습니다. 입력 내용을 확인해주세요.'
 
 
 # ============= BASE MIXINS =============
@@ -141,6 +186,10 @@ class TransactionFilterMixin:
         Returns:
             필터가 적용된 queryset
         """
+        # 계좌 필터
+        if account_id := self.request.GET.get('account'):
+            queryset = queryset.filter(account_id=account_id)
+
         # 검색 (Walrus 연산자)
         if search := self.request.GET.get('search'):
             queryset = queryset.filter(
@@ -181,7 +230,16 @@ class TransactionFilterMixin:
         Returns:
             dict: 필터 상태 정보
         """
+        # 사용자 계좌 목록 (필터 드롭다운용: pk + "은행명 계좌번호")
+        account_filter_choices = []
+        if hasattr(self, 'request') and self.request.user.is_authenticated:
+            bank_map = dict(Account.BANK_CHOICES)
+            for acc in Account.objects.filter(user=self.request.user):
+                label = f"{bank_map.get(acc.bank_name, acc.bank_name)} {acc.get_masked_account_number()}"
+                account_filter_choices.append((str(acc.pk), label))
+
         return {
+            'selected_account': self.request.GET.get('account', ''),
             'selected_category': self.request.GET.get('category', ''),
             'selected_type': self.request.GET.get('type', ''),
             'search_query': self.request.GET.get('search', ''),
@@ -189,6 +247,7 @@ class TransactionFilterMixin:
             'end_date': self.request.GET.get('end_date', ''),
             'categories': Transaction.CATEGORY_CHOICES,
             'transaction_types': Transaction.TRANSACTION_TYPE_CHOICES,
+            'account_filter_choices': account_filter_choices,
         }
 
 
@@ -338,13 +397,13 @@ class TransactionDetailView(TransactionBaseMixin, UserOwnerMixin, generic.Detail
 
 # ============= CREATE VIEW =============
 class TransactionCreateView(
-    TransactionBaseMixin, 
-    FormMessageMixin, 
-    DateTimeInitialMixin, 
+    TransactionBaseMixin,
+    FormMessageMixin,
+    DateTimeInitialMixin,
     generic.CreateView
 ):
     """거래내역 등록
-    
+
     Features:
     - 자동으로 현재 사용자 설정
     - 현재 시간을 초기값으로 설정
@@ -353,28 +412,39 @@ class TransactionCreateView(
     form_class = TransactionForm
     template_name = 'information/transaction_form.html'
     error_message = MSG_FORM_ERROR.format(action='등록')
-    
+
+    def get_form_kwargs(self):
+        """폼에 현재 사용자 전달"""
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
-        """폼 유효성 검사 성공 시 - 동적 메시지 생성"""
+        """폼 유효성 검사 성공 시 - 동적 메시지 생성 + 계좌 잔액 반영"""
         # 동적 성공 메시지 설정
         self.success_message = MSG_CREATE_SUCCESS.format(
             type=form.instance.get_transaction_type_display(),
             amount=f'{form.instance.amount:,.0f}'
         )
-        
-        return super().form_valid(form)
+
+        response = super().form_valid(form)
+
+        # 계좌 잔액 업데이트
+        _apply_transaction_to_account(form.instance)
+
+        return response
 
 
 # ============= UPDATE VIEW =============
 class TransactionUpdateView(
-    TransactionBaseMixin, 
-    UserOwnerMixin, 
-    FormMessageMixin, 
-    DateTimeInitialMixin, 
+    TransactionBaseMixin,
+    UserOwnerMixin,
+    FormMessageMixin,
+    DateTimeInitialMixin,
     generic.UpdateView
 ):
     """거래내역 수정
-    
+
     Permission: 본인 거래내역만 수정 가능
     Features:
     - datetime-local 형식으로 초기값 설정
@@ -384,6 +454,25 @@ class TransactionUpdateView(
     template_name = 'information/transaction_form.html'
     success_message = MSG_UPDATE_SUCCESS
     error_message = MSG_FORM_ERROR.format(action='수정')
+
+    def get_form_kwargs(self):
+        """폼에 현재 사용자 전달"""
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        """폼 유효성 검사 성공 시 - 계좌 잔액 업데이트"""
+        # 수정 전 거래 정보로 기존 계좌 잔액 되돌리기
+        old_transaction = Transaction.objects.select_related('account').get(pk=form.instance.pk)
+        _reverse_transaction_from_account(old_transaction)
+
+        response = super().form_valid(form)
+
+        # 수정된 거래 정보로 계좌 잔액 반영
+        _apply_transaction_to_account(self.object)
+
+        return response
 
 
 # ============= DELETE VIEW =============
@@ -398,10 +487,13 @@ class TransactionDeleteView(TransactionBaseMixin, UserOwnerMixin, generic.Delete
     template_name = 'information/transaction_confirm_delete.html'
     context_object_name = 'transaction'
 
-    def delete(self, request, *args, **kwargs):
-        """삭제 실행 및 성공 메시지"""
-        messages.success(request, MSG_DELETE_SUCCESS)
-        return super().delete(request, *args, **kwargs)
+    def form_valid(self, form):
+        """삭제 실행 및 성공 메시지 + 계좌 잔액 복원
+        Django 6.0에서 BaseDeleteView.post()가 form_valid()을 호출"""
+        # self.object는 post()에서 이미 설정됨
+        _reverse_transaction_from_account(self.object)
+        messages.success(self.request, MSG_DELETE_SUCCESS)
+        return super().form_valid(form)
 
 
 # ============= DASHBOARD VIEW =============
@@ -747,7 +839,9 @@ class IntegratedDashboardView(LoginRequiredMixin, TransactionFilterMixin, generi
     def get_queryset(self):
         """사용자 거래내역 + 검색/필터"""
         try:
-            queryset = Transaction.objects.filter(user=self.request.user)
+            queryset = Transaction.objects.filter(
+                user=self.request.user
+            ).select_related('account')
             queryset = self._apply_filters(queryset)
             return queryset
         except Exception:
@@ -787,6 +881,26 @@ class IntegratedDashboardView(LoginRequiredMixin, TransactionFilterMixin, generi
             context.update({
                 'points': 0,
                 'point_transactions': [],
+            })
+
+        # 계좌 데이터 추가
+        try:
+            user_accounts = Account.objects.filter(user=self.request.user)
+            total_balance = user_accounts.filter(
+                is_active=True
+            ).aggregate(total=Sum('balance'))['total'] or Decimal('0')
+            context.update({
+                'user_accounts': user_accounts,
+                'total_account_balance': total_balance,
+                'account_count': user_accounts.count(),
+                'active_account_count': user_accounts.filter(is_active=True).count(),
+            })
+        except Exception:
+            context.update({
+                'user_accounts': [],
+                'total_account_balance': Decimal('0'),
+                'account_count': 0,
+                'active_account_count': 0,
             })
 
         return context
@@ -872,3 +986,115 @@ def transfer_to_seoulpay(request):
 
     messages.success(request, f'{amount:,}P가 서울페이로 전송되었습니다! 💳')
     return redirect('information:integrated_dashboard')
+
+
+# ============= ACCOUNT BASE MIXINS =============
+class AccountBaseMixin(LoginRequiredMixin):
+    """계좌 공통 설정"""
+    model = Account
+    login_url = LOGIN_URL
+    success_url = ACCOUNT_SUCCESS_URL
+
+
+class AccountOwnerMixin(UserPassesTestMixin):
+    """본인 소유 계좌만 접근 허용"""
+
+    def test_func(self):
+        """권한 검증: 본인의 계좌만 접근 가능"""
+        try:
+            return self.get_object().user == self.request.user
+        except (ObjectDoesNotExist, AttributeError):
+            return False
+
+
+# ============= ACCOUNT LIST VIEW =============
+class AccountListView(AccountBaseMixin, generic.ListView):
+    """계좌 목록
+
+    Features:
+    - 사용자별 계좌 목록 표시
+    - 페이지네이션 (20개)
+    """
+    template_name = 'information/account_list.html'
+    context_object_name = 'accounts'
+    paginate_by = 20
+
+    def get_queryset(self):
+        """사용자 계좌 목록"""
+        try:
+            return Account.objects.filter(user=self.request.user)
+        except Exception:
+            return Account.objects.none()
+
+
+# ============= ACCOUNT DETAIL VIEW =============
+class AccountDetailView(AccountBaseMixin, AccountOwnerMixin, generic.DetailView):
+    """계좌 상세 조회
+
+    Permission: 본인 계좌만 조회 가능
+    """
+    template_name = 'information/account_detail.html'
+    context_object_name = 'account'
+
+    def get_context_data(self, **kwargs):
+        """해당 계좌의 최근 거래내역 10건 추가"""
+        context = super().get_context_data(**kwargs)
+        context['recent_transactions'] = Transaction.objects.filter(
+            account=self.object
+        ).order_by('-transaction_date')[:10]
+        return context
+
+
+# ============= ACCOUNT CREATE VIEW =============
+class AccountCreateView(AccountBaseMixin, FormMessageMixin, generic.CreateView):
+    """계좌 등록
+
+    Features:
+    - 자동으로 현재 사용자 설정
+    - 성공/실패 메시지 표시
+    """
+    form_class = AccountForm
+    template_name = 'information/account_form.html'
+    error_message = MSG_ACCOUNT_FORM_ERROR.format(action='등록')
+
+    def form_valid(self, form):
+        """폼 유효성 검사 성공 시 - 동적 메시지 생성"""
+        form.instance.user = self.request.user
+        self.success_message = MSG_ACCOUNT_CREATE_SUCCESS.format(
+            bank=form.instance.get_bank_name_display(),
+            number=form.instance.get_masked_account_number()
+        )
+        return super().form_valid(form)
+
+
+# ============= ACCOUNT UPDATE VIEW =============
+class AccountUpdateView(AccountBaseMixin, AccountOwnerMixin, FormMessageMixin, generic.UpdateView):
+    """계좌 수정
+
+    Permission: 본인 계좌만 수정 가능
+    Features:
+    - 성공/실패 메시지 표시
+    """
+    form_class = AccountForm
+    template_name = 'information/account_form.html'
+    success_message = MSG_ACCOUNT_UPDATE_SUCCESS
+    error_message = MSG_ACCOUNT_FORM_ERROR.format(action='수정')
+
+
+# ============= ACCOUNT DELETE VIEW =============
+class AccountDeleteView(AccountBaseMixin, AccountOwnerMixin, generic.DeleteView):
+    """계좌 삭제
+
+    Permission: 본인 계좌만 삭제 가능
+    Features:
+    - 삭제 확인 페이지
+    - 성공 메시지 표시
+    """
+    template_name = 'information/account_confirm_delete.html'
+    context_object_name = 'account'
+
+    def form_valid(self, form):
+        """삭제 실행 및 성공 메시지
+        Django 6.0에서 BaseDeleteView.post()가 form_valid()을 호출"""
+        messages.success(self.request, MSG_ACCOUNT_DELETE_SUCCESS)
+        return super().form_valid(form)

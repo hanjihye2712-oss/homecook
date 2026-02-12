@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %}{% if object %}계좌 수정{% else %}계좌 추가{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/account_form.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- 헤더 -->
+            <div class="mb-4">
+                <h2>{% if object %}계좌 수정{% else %}계좌 추가{% endif %}</h2>
+            </div>
+
+            <!-- 폼 카드 -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" id="accountForm">
+                        {% csrf_token %}
+
+                        <!-- 은행명 -->
+                        <div class="mb-3">
+                            <label for="{{ form.bank_name.id_for_label }}" class="form-label required">
+                                {{ form.bank_name.label }}
+                            </label>
+                            {{ form.bank_name }}
+                            {% if form.bank_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.bank_name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 계좌번호 -->
+                        <div class="mb-3">
+                            <label for="{{ form.account_number.id_for_label }}" class="form-label required">
+                                {{ form.account_number.label }}
+                            </label>
+                            {{ form.account_number }}
+                            <div class="form-text">숫자와 하이픈(-)만 입력 가능합니다</div>
+                            {% if form.account_number.errors %}
+                                <div class="text-danger small mt-1">{{ form.account_number.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 별칭 -->
+                        <div class="mb-3">
+                            <label for="{{ form.account_alias.id_for_label }}" class="form-label">
+                                {{ form.account_alias.label }}
+                            </label>
+                            {{ form.account_alias }}
+                            <div class="form-text">구분하기 쉬운 별칭을 입력하세요 (선택사항)</div>
+                            {% if form.account_alias.errors %}
+                                <div class="text-danger small mt-1">{{ form.account_alias.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 잔액 -->
+                        <div class="mb-3">
+                            <label for="{{ form.balance.id_for_label }}" class="form-label required">
+                                {{ form.balance.label }}
+                            </label>
+                            {{ form.balance }}
+                            <div class="form-text">현재 계좌 잔액을 입력하세요</div>
+                            {% if form.balance.errors %}
+                                <div class="text-danger small mt-1">{{ form.balance.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 활성 상태 -->
+                        <div class="mb-3 form-check">
+                            {{ form.is_active }}
+                            <label for="{{ form.is_active.id_for_label }}" class="form-check-label">
+                                {{ form.is_active.label }}
+                            </label>
+                        </div>
+
+                        <!-- 제출 버튼 -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'information:account_list' %}" class="btn btn-secondary">취소</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if object %}수정 완료{% else %}등록하기{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

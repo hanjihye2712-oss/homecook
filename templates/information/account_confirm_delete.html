@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %}계좌 삭제{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/account_delete.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- 헤더 -->
+            <div class="mb-4 text-center">
+                <h2>계좌 삭제</h2>
+            </div>
+
+            <!-- 삭제 확인 카드 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">삭제 확인</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <p class="mb-0"><strong>정말 이 계좌를 삭제하시겠습니까?</strong></p>
+                        <small>삭제된 데이터는 복구할 수 없습니다. 해당 계좌에 연결된 거래내역의 계좌 정보가 해제됩니다.</small>
+                    </div>
+
+                    <!-- 삭제할 계좌 정보 -->
+                    <div class="border rounded p-3 bg-light mb-3">
+                        <h6 class="mb-3">삭제 대상:</h6>
+
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">은행:</div>
+                            <div class="col-7">
+                                <span class="badge bg-primary">{{ account.get_bank_name_display }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">계좌번호:</div>
+                            <div class="col-7">{{ account.get_masked_account_number }}</div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">별칭:</div>
+                            <div class="col-7">{{ account.account_alias|default:"-" }}</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-5 text-muted">잔액:</div>
+                            <div class="col-7">
+                                <strong class="text-primary">{{ account.get_balance_display }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 삭제 폼 -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="{% url 'information:account_list' %}" class="btn btn-secondary btn-lg">취소</a>
+                            <button type="submit" class="btn btn-danger btn-lg">삭제하기</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 안내 메시지 -->
+            <div class="alert alert-info mt-4 text-center">
+                <small>
+취소하려면 '취소' 버튼을 클릭하세요.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

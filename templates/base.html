@@ -28,7 +28,10 @@
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'information:integrated_dashboard' %}">건강 포인트</a>
+                            <a class="nav-link" href="{% url 'information:integrated_dashboard' %}">건강 가계부</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'information:account_list' %}">계좌 관리</a>
                         </li>
                         <li class="nav-item">
                             <span class="nav-link nav-username">{{ user.username }}님</span>
