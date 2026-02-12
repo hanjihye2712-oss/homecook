@@ -68,6 +68,18 @@
                             {% endif %}
                         </div>
 
+                        <!-- 계좌 (선택사항) -->
+                        <div class="mb-3">
+                            <label for="{{ form.account.id_for_label }}" class="form-label">
+                                {{ form.account.label }}
+                            </label>
+                            {{ form.account }}
+                            <div class="form-text">거래와 연결할 계좌를 선택하세요 (선택사항)</div>
+                            {% if form.account.errors %}
+                                <div class="text-danger small mt-1">{{ form.account.errors }}</div>
+                            {% endif %}
+                        </div>
+
                         <!-- 거래 일시 -->
                         <div class="mb-3">
                             <label for="{{ form.transaction_date.id_for_label }}" class="form-label required">
@@ -96,23 +108,3 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-    // 금액 입력 시 천 단위 구분 표시 (선택적)
-    document.addEventListener('DOMContentLoaded', function() {
-        const amountInput = document.getElementById('{{ form.amount.id_for_label }}');
-        if (amountInput) {
-            amountInput.addEventListener('blur', function() {
-                if (this.value) {
-                    // 입력값 유효성 간단 체크
-                    const num = parseFloat(this.value);
-                    if (num < 0) {
-                        alert('금액은 0보다 커야 합니다.');
-                        this.focus();
-                    }
-                }
-            });
-        }
-    });
-</script>
-{% endblock %}

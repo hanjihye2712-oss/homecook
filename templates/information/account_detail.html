@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}계좌 상세{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/account_detail.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- 헤더 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>계좌 상세</h2>
+                <a href="{% url 'information:account_list' %}" class="btn btn-outline-secondary">목록으로</a>
+            </div>
+
+            <!-- 계좌 카드 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ account.get_bank_name_display }} {{ account.get_masked_account_number }}</h5>
+                </div>
+                <div class="card-body">
+                    <!-- 은행명 -->
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">은행명</div>
+                        <div class="col-8">
+                            <span class="badge bg-primary fs-6">{{ account.get_bank_name_display }}</span>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <!-- 계좌번호 -->
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">계좌번호</div>
+                        <div class="col-8">{{ account.get_masked_account_number }}</div>
+                    </div>
+                    <hr>
+
+                    <!-- 별칭 -->
+                    {% if account.account_alias %}
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">별칭</div>
+                        <div class="col-8">{{ account.account_alias }}</div>
+                    </div>
+                    <hr>
+                    {% endif %}
+
+                    <!-- 잔액 -->
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">잔액</div>
+                        <div class="col-8">
+                            <h4 class="mb-0 text-primary">{{ account.get_balance_display }}</h4>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <!-- 상태 -->
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">상태</div>
+                        <div class="col-8">
+                            {% if account.is_active %}
+                                <span class="badge bg-success fs-6">활성</span>
+                            {% else %}
+                                <span class="badge bg-secondary fs-6">비활성</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <hr>
+
+                    <!-- 등록/수정 일시 -->
+                    <div class="row mb-2">
+                        <div class="col-4 text-muted">등록 일시</div>
+                        <div class="col-8 text-muted small">{{ account.created_at|date:"Y-m-d H:i:s" }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 text-muted">수정 일시</div>
+                        <div class="col-8 text-muted small">{{ account.updated_at|date:"Y-m-d H:i:s" }}</div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'information:account_update' account.pk %}" class="btn btn-primary">수정</a>
+                        <a href="{% url 'information:account_delete' account.pk %}" class="btn btn-danger">삭제</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 최근 거래내역 -->
+            {% if recent_transactions %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">최근 거래내역</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>날짜</th>
+                                    <th>유형</th>
+                                    <th>내용</th>
+                                    <th class="text-end">금액</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in recent_transactions %}
+                                <tr>
+                                    <td>{{ transaction.transaction_date|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <span class="badge {% if transaction.transaction_type == 'deposit' %}bg-success{% elif transaction.transaction_type == 'withdrawal' %}bg-danger{% else %}bg-info{% endif %}">
+                                            {{ transaction.get_transaction_type_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'information:transaction_detail' transaction.pk %}" class="text-decoration-none">
+                                            {{ transaction.description|truncatewords:8 }}
+                                        </a>
+                                    </td>
+                                    <td class="text-end {% if transaction.is_income %}text-success{% else %}text-danger{% endif %}">
+                                        <strong>{{ transaction.get_amount_display }}</strong>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

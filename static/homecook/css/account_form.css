@@ -1,0 +1,6 @@
+/* ===== 계좌 등록/수정 폼 - Padelthon Style ===== */
+.form-label.required::after {
+    content: " *";
+    color: #ef4444;
+    font-weight: 600;
+}

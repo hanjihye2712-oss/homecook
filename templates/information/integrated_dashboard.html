@@ -42,13 +42,16 @@
                             <label for="period" class="form-label fw-bold">
                                 조회 기간
                             </label>
-                            <select name="period" id="period" class="form-select" onchange="document.getElementById('periodForm').submit()">
-                                {% for option in period_options %}
-                                <option value="{{ option }}" {% if option == selected_period %}selected{% endif %}>
-                                    최근 {{ option }}개월
-                                </option>
-                                {% endfor %}
-                            </select>
+                            <div class="input-group">
+                                <select name="period" id="period" class="form-select">
+                                    {% for option in period_options %}
+                                    <option value="{{ option }}" {% if option == selected_period %}selected{% endif %}>
+                                        최근 {{ option }}개월
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-secondary">조회</button>
+                            </div>
                             <small class="text-muted d-block mt-2">
                                 총 {{ transaction_count }}건
                             </small>
@@ -180,7 +183,7 @@
                     </div>
                     <div class="card-body">
                         <p class="mb-3">건강 포인트를 서울페이로 전송하면 다양한 가맹점에서 사용할수 있습니다.</p>
-                        <form method="post" action="{% url 'information:transfer_to_seoulpay' %}" onsubmit="return confirmTransfer()">
+                        <form method="post" action="{% url 'information:transfer_to_seoulpay' %}">
                             {% csrf_token %}
                             <div class="input-group">
                                 <input
@@ -209,6 +212,81 @@
     <!-- 구분선 -->
     <hr class="my-5">
 
+    <!-- ========== 계좌 섹션 ========== -->
+    <section class="accounts-section mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="d-flex align-items-center gap-2">
+                <span class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
+                계좌 관리
+            </h3>
+        </div>
+
+        <!-- 계좌 요약 -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card text-center h-100">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h6 class="card-subtitle mb-2 text-muted">총 계좌 잔액</h6>
+                        <h2 class="card-title text-primary mb-1">{{ total_account_balance|floatformat:0|intcomma|default:"0" }}원</h2>
+                        <small class="text-muted">활성 계좌 {{ active_account_count }}개</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                {% if user_accounts %}
+                <div class="card h-100">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>은행</th>
+                                    <th>계좌번호</th>
+                                    <th>별칭</th>
+                                    <th class="text-end">잔액</th>
+                                    <th class="text-center">상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for account in user_accounts %}
+                                <tr>
+                                    <td>
+                                        <span class="badge badge-sm bg-primary">{{ account.get_bank_name_display }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'information:account_detail' account.pk %}" class="text-decoration-none small">
+                                            {{ account.get_masked_account_number }}
+                                        </a>
+                                    </td>
+                                    <td class="small">{{ account.account_alias|default:"-" }}</td>
+                                    <td class="text-end small fw-bold">{{ account.get_balance_display }}</td>
+                                    <td class="text-center">
+                                        {% if account.is_active %}
+                                            <span class="badge badge-sm bg-success">활성</span>
+                                        {% else %}
+                                            <span class="badge badge-sm bg-secondary">비활성</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <p class="text-muted mb-3">등록된 계좌가 없습니다.</p>
+                        <a href="{% url 'information:account_create' %}" class="btn btn-primary">첫 계좌 등록하기</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- 구분선 -->
+    <hr class="my-5">
+
     <!-- ========== 거래내역 섹션 ========== -->
     <section class="transactions-section">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -221,22 +299,31 @@
         <!-- 필터 및 검색 -->
         <div class="card mb-4">
             <div class="card-body">
-                <form method="get" class="row g-3">
+                <form method="get" class="row g-2 align-items-end">
                     <!-- 기간 유지 -->
                     <input type="hidden" name="period" value="{{ selected_period }}">
 
-                    <div class="col-md-2">
-                        <label class="form-label small">시작일</label>
+                    <div class="col">
+                        <label class="form-label small mb-1">계좌</label>
+                        <select name="account" class="form-select form-select-sm">
+                            <option value="">전체</option>
+                            {% for value, label in account_filter_choices %}
+                            <option value="{{ value }}" {% if selected_account == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label class="form-label small mb-1">시작일</label>
                         <input type="date" name="start_date" class="form-control form-control-sm"
                                value="{{ start_date }}">
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label small">종료일</label>
+                    <div class="col">
+                        <label class="form-label small mb-1">종료일</label>
                         <input type="date" name="end_date" class="form-control form-control-sm"
                                value="{{ end_date }}">
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label small">거래 유형</label>
+                    <div class="col-auto">
+                        <label class="form-label small mb-1">유형</label>
                         <select name="type" class="form-select form-select-sm">
                             <option value="">전체</option>
                             {% for value, label in transaction_types %}
@@ -244,8 +331,8 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label small">카테고리</label>
+                    <div class="col-auto">
+                        <label class="form-label small mb-1">카테고리</label>
                         <select name="category" class="form-select form-select-sm">
                             <option value="">전체</option>
                             {% for value, label in categories %}
@@ -253,15 +340,13 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label small">검색</label>
+                    <div class="col">
+                        <label class="form-label small mb-1">검색</label>
                         <input type="text" name="search" class="form-control form-control-sm"
-                               placeholder="거래 내용, 메모" value="{{ search_query }}">
+                               placeholder="내용, 메모" value="{{ search_query }}">
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-secondary btn-sm w-100">
-                            필터 적용
-                        </button>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-secondary btn-sm">적용</button>
                     </div>
                 </form>
             </div>
@@ -277,6 +362,7 @@
                             <th class="text-center">날짜</th>
                             <th>유형</th>
                             <th>카테고리</th>
+                            <th>계좌</th>
                             <th>내용</th>
                             <th class="text-end">금액</th>
                             <th class="text-center">관리</th>
@@ -294,8 +380,17 @@
                             <td>
                                 <span class="badge badge-sm bg-secondary">{{ transaction.get_category_display }}</span>
                             </td>
+                            <td class="small">
+                                {% if transaction.account %}
+                                    <a href="{% url 'information:account_detail' transaction.account.pk %}" class="text-decoration-none">
+                                        {{ transaction.account.get_bank_name_display }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
                             <td>
-                                <a href="{% url 'information:transaction_detail' transaction.pk %}" 
+                                <a href="{% url 'information:transaction_detail' transaction.pk %}"
                                    class="text-decoration-none small">
                                     {{ transaction.description|truncatewords:8 }}
                                 </a>
@@ -324,10 +419,10 @@
             <ul class="pagination pagination-sm justify-content-center mb-0">
                 {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1&period={{ selected_period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">처음</a>
+                    <a class="page-link" href="?page=1&period={{ selected_period }}{% if selected_account %}&account={{ selected_account }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">처음</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&period={{ selected_period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">이전</a>
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&period={{ selected_period }}{% if selected_account %}&account={{ selected_account }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">이전</a>
                 </li>
                 {% endif %}
 
@@ -337,10 +432,10 @@
 
                 {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&period={{ selected_period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">다음</a>
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&period={{ selected_period }}{% if selected_account %}&account={{ selected_account }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">다음</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&period={{ selected_period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">마지막</a>
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&period={{ selected_period }}{% if selected_account %}&account={{ selected_account }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">마지막</a>
                 </li>
                 {% endif %}
             </ul>
@@ -519,15 +614,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 {% endif %}
-
-// 서울페이 전송 확인
-function confirmTransfer() {
-    const amount = document.getElementById('amount').value;
-    if (!amount || amount <= 0) {
-        alert('올바른 금액을 입력해주세요.');
-        return false;
-    }
-    return confirm(`${amount}P를 서울페이로 전송하시겠습니까?\n\n전송 후에는 취소할 수 없습니다.`);
-}
 </script>
 {% endblock %}

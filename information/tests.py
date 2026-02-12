@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 from accounts.models import UserProfile
-from information.models import Transaction
+from information.models import Transaction, Account
 
 
 class TransactionTestHelper:
@@ -363,4 +363,196 @@ class DashboardStatsTest(TestCase):
         self.assertEqual(response.context['total_income'], Decimal('0'))
 
 
+# ============================================================================
+# 계좌 테스트
+# ============================================================================
+
+class AccountTestHelper:
+    """계좌 테스트 공통 헬퍼"""
+
+    @staticmethod
+    def create_account(user, bank_name='kb', account_number='110-123-456789',
+                       account_alias='월급통장', balance=100000):
+        return Account.objects.create(
+            user=user,
+            bank_name=bank_name,
+            account_number=account_number,
+            account_alias=account_alias,
+            balance=Decimal(str(balance)),
+        )
+
+
+class AccountCRUDTest(TestCase):
+    """계좌 CRUD 테스트"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = TransactionTestHelper.create_user()
+        self.other_user = TransactionTestHelper.create_user(username='other')
+        self.client.login(username='testuser', password='testpass123!')
+
+    def test_create_account(self):
+        """계좌 생성"""
+        url = reverse('information:account_create')
+        response = self.client.post(url, {
+            'bank_name': 'kb',
+            'account_number': '110-123-456789',
+            'account_alias': '월급통장',
+            'balance': '100000',
+            'is_active': True,
+        })
+
+        self.assertEqual(Account.objects.filter(user=self.user).count(), 1)
+        account = Account.objects.get(user=self.user)
+        self.assertEqual(account.bank_name, 'kb')
+        self.assertEqual(account.balance, Decimal('100000'))
+
+    def test_create_account_redirects(self):
+        """생성 후 목록으로 리다이렉트"""
+        url = reverse('information:account_create')
+        response = self.client.post(url, {
+            'bank_name': 'shinhan',
+            'account_number': '110-000-111222',
+            'balance': '0',
+            'is_active': True,
+        })
+        self.assertRedirects(response, reverse('information:account_list'))
+
+    def test_view_own_account(self):
+        """본인 계좌 상세 조회"""
+        account = AccountTestHelper.create_account(self.user)
+        url = reverse('information:account_detail', kwargs={'pk': account.pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_cannot_view_others_account(self):
+        """타인 계좌 조회 불가"""
+        account = AccountTestHelper.create_account(self.other_user)
+        url = reverse('information:account_detail', kwargs={'pk': account.pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_update_own_account(self):
+        """본인 계좌 수정"""
+        account = AccountTestHelper.create_account(self.user)
+        url = reverse('information:account_update', kwargs={'pk': account.pk})
+        response = self.client.post(url, {
+            'bank_name': 'hana',
+            'account_number': '999-888-777666',
+            'account_alias': '수정된 별칭',
+            'balance': '200000',
+            'is_active': True,
+        })
+
+        account.refresh_from_db()
+        self.assertEqual(account.bank_name, 'hana')
+        self.assertEqual(account.balance, Decimal('200000'))
+
+    def test_cannot_update_others_account(self):
+        """타인 계좌 수정 불가"""
+        account = AccountTestHelper.create_account(self.other_user)
+        url = reverse('information:account_update', kwargs={'pk': account.pk})
+        response = self.client.post(url, {
+            'bank_name': 'woori',
+            'account_number': '111-222-333444',
+            'balance': '999999',
+            'is_active': True,
+        })
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_own_account(self):
+        """본인 계좌 삭제"""
+        account = AccountTestHelper.create_account(self.user)
+        url = reverse('information:account_delete', kwargs={'pk': account.pk})
+        response = self.client.post(url)
+
+        self.assertEqual(Account.objects.filter(pk=account.pk).count(), 0)
+
+    def test_cannot_delete_others_account(self):
+        """타인 계좌 삭제 불가"""
+        account = AccountTestHelper.create_account(self.other_user)
+        url = reverse('information:account_delete', kwargs={'pk': account.pk})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_account_list_requires_login(self):
+        """계좌 목록 로그인 필수"""
+        self.client.logout()
+        url = reverse('information:account_list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/accounts/login/', response.url)
+
+    def test_account_list_shows_only_own(self):
+        """계좌 목록에 본인 계좌만 표시"""
+        AccountTestHelper.create_account(self.user, account_alias='내 계좌')
+        AccountTestHelper.create_account(self.other_user, account_number='999-999-999999', account_alias='타인 계좌')
+
+        url = reverse('information:account_list')
+        response = self.client.get(url)
+        self.assertContains(response, '내 계좌')
+        self.assertNotContains(response, '타인 계좌')
+
+    def test_delete_account_does_not_delete_transactions(self):
+        """계좌 삭제 시 연결된 거래내역은 삭제되지 않음 (SET_NULL)"""
+        account = AccountTestHelper.create_account(self.user)
+        tx = Transaction.objects.create(
+            user=self.user,
+            account=account,
+            transaction_type='deposit',
+            amount=Decimal('10000'),
+            category='salary',
+            description='테스트',
+            transaction_date=timezone.now(),
+        )
+
+        url = reverse('information:account_delete', kwargs={'pk': account.pk})
+        self.client.post(url)
+
+        tx.refresh_from_db()
+        self.assertIsNone(tx.account)
+        self.assertEqual(Transaction.objects.filter(pk=tx.pk).count(), 1)
+
+
+class AccountModelTest(TestCase):
+    """계좌 모델 메서드 테스트"""
+
+    def setUp(self):
+        self.user = TransactionTestHelper.create_user()
+
+    def test_str_with_alias(self):
+        """별칭이 있는 계좌 문자열 표현"""
+        account = AccountTestHelper.create_account(self.user, account_alias='월급통장')
+        self.assertIn('월급통장', str(account))
+
+    def test_str_without_alias(self):
+        """별칭이 없는 계좌 문자열 표현"""
+        account = AccountTestHelper.create_account(self.user, account_alias='')
+        self.assertNotIn('()', str(account))
+
+    def test_get_balance_display(self):
+        """잔액 표시 형식"""
+        account = AccountTestHelper.create_account(self.user, balance=1000000)
+        self.assertEqual(account.get_balance_display(), '1,000,000원')
+
+    def test_get_masked_account_number(self):
+        """계좌번호 마스킹 (앞2 + * + 뒤2)"""
+        account = AccountTestHelper.create_account(self.user, account_number='110-123-456789')
+        masked = account.get_masked_account_number()
+        # 110123456789 -> 11********89
+        self.assertTrue(masked.startswith('11'))
+        self.assertTrue(masked.endswith('89'))
+        self.assertIn('*', masked)
+        self.assertEqual(len(masked), 12)
+
+    def test_clean_negative_balance_raises(self):
+        """음수 잔액 유효성 검사 실패"""
+        account = Account(
+            user=self.user, bank_name='kb',
+            account_number='111-222-333',
+            balance=Decimal('-1000'),
+        )
+        from django.core.exceptions import ValidationError
+        with self.assertRaises(ValidationError):
+            account.clean()
 

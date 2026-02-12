@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}계좌 목록{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'homecook/css/account_list.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>계좌 목록</h2>
+        <a href="{% url 'information:account_create' %}" class="btn btn-primary">
+            계좌 추가
+        </a>
+    </div>
+
+    <!-- 계좌 테이블 -->
+    {% if accounts %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>은행</th>
+                            <th>계좌번호</th>
+                            <th>별칭</th>
+                            <th class="text-end">잔액</th>
+                            <th class="text-center">상태</th>
+                            <th class="text-center">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in accounts %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary">{{ account.get_bank_name_display }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'information:account_detail' account.pk %}" class="text-decoration-none">
+                                    {{ account.account_number }}
+                                </a>
+                            </td>
+                            <td>{{ account.account_alias|default:"-" }}</td>
+                            <td class="text-end">
+                                <strong>{{ account.get_balance_display }}</strong>
+                            </td>
+                            <td class="text-center">
+                                {% if account.is_active %}
+                                    <span class="badge bg-success">활성</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">비활성</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'information:account_update' account.pk %}" class="btn btn-sm btn-outline-primary">수정</a>
+                                <a href="{% url 'information:account_delete' account.pk %}" class="btn btn-sm btn-outline-danger">삭제</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 페이지네이션 -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">처음</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">이전</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">다음</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">마지막</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center">
+        <h5>등록된 계좌가 없습니다.</h5>
+        <p class="mb-3">첫 계좌를 등록해보세요!</p>
+        <a href="{% url 'information:account_create' %}" class="btn btn-primary">계좌 추가하기</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -54,6 +54,21 @@
                     </div>
                     <hr>
 
+                    <!-- 계좌 -->
+                    {% if transaction.account %}
+                    <div class="row mb-3">
+                        <div class="col-4 text-muted">계좌</div>
+                        <div class="col-8">
+                            <a href="{% url 'information:account_detail' transaction.account.pk %}" class="text-decoration-none">
+                                <span class="badge bg-primary">{{ transaction.account.get_bank_name_display }}</span>
+                                {{ transaction.account.get_masked_account_number }}
+                                {% if transaction.account.account_alias %}({{ transaction.account.account_alias }}){% endif %}
+                            </a>
+                        </div>
+                    </div>
+                    <hr>
+                    {% endif %}
+
                     <!-- 거래 일시 -->
                     <div class="row mb-3">
                         <div class="col-4 text-muted">거래 일시</div>
