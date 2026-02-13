@@ -80,13 +80,14 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("POSTGRES_DB", "your_db_name"),
-        'USER': os.environ.get("POSTGRES_USER", "your_db_user"),
-        'PASSWORD': os.environ.get("POSTGRES_PASSWORD", "your_password"),
-        'HOST': os.environ.get("POSTGRES_HOST", "127.0.0.1"),
+        'NAME': os.environ.get("POSTGRES_DB", "homecook_db"),
+        'USER': os.environ.get("POSTGRES_USER", "homecook_db_user"),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD", "tmIznRPddoHffmE3Tvyhb7TyvUChE39n"),
+        'HOST': os.environ.get("POSTGRES_HOST", "dpg-d66jgabh46gs73f10bi0-a.singapore-postgres.render.com"),
         'PORT': os.environ.get("POSTGRES_PORT", "5432"),
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -124,6 +125,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",   # ✅ 공통 static 폴더
